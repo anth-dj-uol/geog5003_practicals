@@ -1,10 +1,10 @@
 import random
 
-# Variable set 1
+# Point 0
 
 # Set up variables
-y0 = 50
-x0 = 50
+y0 = random.randint(0, 99)
+x0 = random.randint(0, 99)
 
 # Random walk one step
 if random.random() < 0.5:
@@ -31,11 +31,11 @@ else:
 print(y0, x0)
 
 
-# Variable set 2
+# Point 1
 
 # Set up variables
-y1 = 50
-x1 = 50
+y1 = random.randint(0, 99)
+x1 = random.randint(0, 99)
 
 # Random walk one step
 if random.random() < 0.5:
@@ -62,6 +62,7 @@ else:
 print(y1, x1)
 
 
+# Calculate Pythagorian distance between point 0 and point 1
 distance = ((y1 - y0)**2 + (x1 - x0)**2 )**0.5
 
 print(distance)
