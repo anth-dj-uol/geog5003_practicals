@@ -1,8 +1,18 @@
 import matplotlib.pyplot
 import operator    # Do this line at the top of the code.
 import random
+import time
 
-num_of_agents = 10
+def distance_between(agents_row_a, agents_row_b):
+    '''
+    Calculate Pythagorian distance between point 0 and point 1
+    '''
+    return (
+            (agents_row_a[0] - agents_row_b[0])**2 + 
+            (agents_row_a[1] - agents_row_b[1])**2 
+    )**0.5
+
+num_of_agents = 1000
 num_of_iterations = 10
 
 agents = []
@@ -32,15 +42,6 @@ for _ in range(num_of_iterations):
         print(agents[i][0], agents[i][1])
 
 
-
-# Calculate Pythagorian distance between point 0 and point 1
-#distance = (
-#        (agents[1][0] - agents[0][0])**2 + 
-#        (agents[1][1] - agents[0][1])**2 
-#)**0.5
-#
-#print(distance)
-
 eastern_point = max(agents, key=operator.itemgetter(1))
 print(eastern_point)    # Do this line at the bottom.
 
@@ -55,3 +56,12 @@ matplotlib.pyplot.scatter(eastern_point[1],eastern_point[0], color='red')
 
 matplotlib.pyplot.show()
 
+distance = distance_between(agents[0], agents[1])
+#distance = distance_between([0, 0], [3, 4])
+
+start = time.clock()
+for i in range(num_of_agents):
+    for j in range(num_of_agents):
+        distance = distance_between(agents[i], agents[j])
+end = time.clock()
+print("time = " + str(end-start))
