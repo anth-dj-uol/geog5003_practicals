@@ -1,67 +1,41 @@
 import matplotlib.pyplot
-import operator    # Do this line at the top of the code.
-import random
-import time
+import agentframework
 
 def distance_between(agents_row_a, agents_row_b):
     '''
     Calculate Pythagorian distance between point 0 and point 1
     '''
     return (
-            (agents_row_a[0] - agents_row_b[0])**2 + 
-            (agents_row_a[1] - agents_row_b[1])**2 
+            (agents_row_a.x - agents_row_b.x)**2 + 
+            (agents_row_a.y - agents_row_b.y)**2 
     )**0.5
 
-num_of_agents = 1000
-num_of_iterations = 10
+num_of_agents = 50
+num_of_iterations = 100
 
 agents = []
 
+
 # Set up agents (y, x)
 for i in range(num_of_agents):
-    agents.append([random.randint(0, 99), random.randint(0, 99)])
-
-print(agents)
+    agents.append(agentframework.Agent())
 
 
 # Move agent
 for _ in range(num_of_iterations):
     for i in range(num_of_agents):
-        
-        # Random walk one step
-        if random.random() < 0.5:
-            agents[i][0] = (agents[i][0] + 1) % 100
-        else:
-            agents[i][0] = (agents[i][0] - 1) % 100
-                
-        if random.random() < 0.5:
-            agents[i][1] = (agents[i][1] + 1) % 100
-        else:
-            agents[i][1] = (agents[i][1] - 1) % 100
-
-        print(agents[i][0], agents[i][1])
-
-
-eastern_point = max(agents, key=operator.itemgetter(1))
-print(eastern_point)    # Do this line at the bottom.
+        agents[i].move()
 
 
 matplotlib.pyplot.ylim(0, 99)
 matplotlib.pyplot.xlim(0, 99)
-
 for i in range(num_of_agents):
-    matplotlib.pyplot.scatter(agents[i][1],agents[i][0], color='black')
-
-matplotlib.pyplot.scatter(eastern_point[1],eastern_point[0], color='red')
-
+    matplotlib.pyplot.scatter(agents[i].x, agents[i].y, color='black')
 matplotlib.pyplot.show()
 
 distance = distance_between(agents[0], agents[1])
 #distance = distance_between([0, 0], [3, 4])
 
-start = time.clock()
-for i in range(num_of_agents):
-    for j in range(num_of_agents):
-        distance = distance_between(agents[i], agents[j])
-end = time.clock()
-print("time = " + str(end-start))
+for agents_row_a in agents:
+    for agents_row_b in agents:
+        distance = distance_between(agents_row_a, agents_row_b)
