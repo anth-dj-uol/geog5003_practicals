@@ -1,5 +1,6 @@
 import matplotlib.pyplot
 import agentframework
+import csv
 
 def distance_between(agents_row_a, agents_row_b):
     '''
@@ -12,23 +13,35 @@ def distance_between(agents_row_a, agents_row_b):
 
 num_of_agents = 50
 num_of_iterations = 100
+filename = 'in.txt'
 
 agents = []
+environment = []
 
+# read environment file
+with open(filename, newline='') as f:
+    reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+    for row in reader:
+        rowlist = []
+        for value in row:
+            rowlist.append(value)
+        environment.append(rowlist)
 
 # Set up agents (y, x)
 for i in range(num_of_agents):
-    agents.append(agentframework.Agent())
+    agents.append(agentframework.Agent(environment))
 
 
 # Move agent
 for _ in range(num_of_iterations):
     for i in range(num_of_agents):
         agents[i].move()
+        agents[i].eat()
 
 
 matplotlib.pyplot.ylim(0, 99)
 matplotlib.pyplot.xlim(0, 99)
+matplotlib.pyplot.imshow(environment)
 for i in range(num_of_agents):
     matplotlib.pyplot.scatter(agents[i].x, agents[i].y, color='black')
 matplotlib.pyplot.show()
