@@ -47,7 +47,7 @@ for i in range(num_of_agents):
     agents.append(agentframework.Agent(environment, agents, y, x))
 
 
-def update(frame_number):
+def update(frame_number, move=True):
     fig.clear()
     random.shuffle(agents)
     for i in range(num_of_agents):
@@ -62,7 +62,7 @@ def update(frame_number):
 
 
 def run():
-    animation = matplotlib.animation.FuncAnimation(fig, update, interval=50, repeat=False, frames=num_of_iterations)
+    animation = matplotlib.animation.FuncAnimation(fig, update, interval=10, repeat=False, frames=num_of_iterations)
     canvas.draw()
 
 # Create GUI window
@@ -79,3 +79,6 @@ menubar.add_cascade(label="Model", menu=model_menu)
 model_menu.add_command(label="Run model", command=run)
 
 #root.mainloop()
+
+# Display initial model
+update(0, False)
