@@ -34,15 +34,21 @@ class Agent():
         del self._y
     
     def move(self):
-        if random.random() < 0.5:
-            self.x = (self.x + 1) % 99
-        else:
-            self.x = (self.x - 1) % 99
+        x_rand = random.random()
+        new_x = self.x
+        if x_rand < 0.33:
+            new_x = self.x + 1
+        elif x_rand < 0.66:
+            new_x = self.x - 1
+        self.x = new_x % 99
 
-        if random.random() < 0.5:
-            self.y = (self.y + 1) % 99
-        else:
-            self.y = (self.y - 1) % 99
+        y_rand = random.random()
+        new_y = self.y
+        if y_rand < 0.33:
+            new_y = self.y + 1
+        elif y_rand < 0.66:
+            new_y = self.y - 1
+        self.y = new_y % 99
 
     def eat(self): # can you make it eat what is left?
         if self.environment[self.y][self.x] > 10:
