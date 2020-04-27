@@ -1,50 +1,73 @@
+"""
+Agent-Based Model Simulation
+============================
+
+A basic ABM that simulates agents traversing an environment
+and eating a portion of it. Agents can share what they have
+eaten with other agents if they are nearby.
+"""
+
 import tkinter
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot
 import matplotlib.animation 
-import agentframework
 import csv
 import random
 import requests
 import bs4
+import agentframework
 
-
-num_of_agents = 50
+# Define default parameter values
+default_num_of_agents = 50
 num_of_iterations = 200
 neighbourhood = 20
-filename = 'in.txt'
+default_filename = 'in.txt'
+default_start_positions_url = \
+    'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 
-agents = []
-environment = []
-
-# Fetch start positions
-r = requests.get('http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html')
-content = r.text
-soup = bs4.BeautifulSoup(content, 'html.parser')
-td_ys = soup.find_all(attrs={"class" : "y"})
-td_xs = soup.find_all(attrs={"class" : "x"})
-
-# Prepare model plot
+# Prepare the model visualization
 matplotlib.pyplot.ioff()
 fig = matplotlib.pyplot.figure(figsize=(7, 7))
 ax = fig.add_axes([0, 0, 1, 1])
 ax.set_autoscale_on(False)
 
-# Read environment data from file
-with open(filename, newline='') as f:
-    reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-    for row in reader:
-        rowlist = []
-        for value in row:
-            rowlist.append(value)
-        environment.append(rowlist)
+def fetch_start_positions(url):
+    """
+    Return the start positions from the provided URL.
+    """
+    # Fetch start positions
+    r = requests.get(url)
+    content = r.text
+    soup = bs4.BeautifulSoup(content, 'html.parser')
+    td_xs = soup.find_all(attrs={"class" : "x"})
+    td_ys = soup.find_all(attrs={"class" : "y"})
+    return (td_xs, td_ys)
 
-# Set up agents
-for i in range(num_of_agents):
-    y = int(td_ys[i].text)
-    x = int(td_xs[i].text)
-    agents.append(agentframework.Agent(environment, agents, y, x))
+def populate_environment(filename):
+    """
+    Return environment data from the given file path.
+    """
+    environment = []
+    with open(filename, newline='') as f:
+        reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+        for row in reader:
+            rowlist = []
+            for value in row:
+                rowlist.append(value)
+            environment.append(rowlist)
+    return environment
+
+def setup_agents(num_of_agents, environment, agents, start_positions):
+    """
+    Instatiate all agents, given the total number, their environment and
+    a reference to the total list of agents.
+    """
+    start_xs, start_ys = start_positions
+    for i in range(num_of_agents):
+        y = int(start_ys[i].text)
+        x = int(start_xs[i].text)
+        agents.append(agentframework.Agent(environment, agents, y, x))
 
 
 def update(frame_number, move=True):
@@ -58,7 +81,7 @@ def update(frame_number, move=True):
     """
     fig.clear()
     random.shuffle(agents)
-    for i in range(num_of_agents):
+    for i in range(len(agents)):
         agents[i].move()
         agents[i].eat()
         agents[i].share_with_neighbours(neighbourhood)
@@ -76,9 +99,15 @@ def run():
     animation = matplotlib.animation.FuncAnimation(fig, update, interval=10, repeat=False, frames=num_of_iterations)
     canvas.draw()
 
+# Setup model
+agents = []
+environment = populate_environment(default_filename)
+start_positions = fetch_start_positions(default_start_positions_url)
+setup_agents(default_num_of_agents, environment, agents, start_positions)
+
 # Create GUI window
 root = tkinter.Tk()
-root.wm_title("Model")
+root.wm_title("Agent-Based Model")
 canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(fig, master=root)
 canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
 
