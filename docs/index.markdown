@@ -42,6 +42,11 @@ If the Spyder IDE is installed on your system:
 
 - Run the Spyder application
 - Open `python/src/unpackaged/abm/model.py`
+- Ensure the correct graphic settings are configured:
+    - Tools > Preferences > IPython console > Graphics tab > Graphics backend
+    - Set Bakcend to _Tkinter_
+    - Click _OK_
+    - Click Consoles menu item > _Restart Kernel_ 
 - Click _Run file_ (or press F5) 
 
 **Command Prompt**
