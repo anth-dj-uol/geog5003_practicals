@@ -48,6 +48,14 @@ for i in range(num_of_agents):
 
 
 def update(frame_number, move=True):
+    """
+    Run a single iteration of the model simulation.
+
+    Each agent in the model will move one step, eat a portion of the
+    environment and share its store with any neighbouring agents. An
+    updated plot will be rendered showing the current position of each
+    agent and the current environment data.
+    """
     fig.clear()
     random.shuffle(agents)
     for i in range(num_of_agents):
@@ -62,6 +70,9 @@ def update(frame_number, move=True):
 
 
 def run():
+    """
+    Start the simulation in an animated figure.
+    """
     animation = matplotlib.animation.FuncAnimation(fig, update, interval=10, repeat=False, frames=num_of_iterations)
     canvas.draw()
 
