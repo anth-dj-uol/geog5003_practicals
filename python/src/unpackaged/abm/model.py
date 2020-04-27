@@ -16,13 +16,15 @@ import csv
 import random
 import requests
 import bs4
+import os
 import agentframework
 
 # Define default parameter values
 default_num_of_agents = 50
 num_of_iterations = 200
 neighbourhood = 20
-default_filename = 'in.txt'
+dir_path = os.path.dirname(os.path.realpath(__file__))
+default_filename = dir_path + os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 
@@ -118,7 +120,7 @@ model_menu = tkinter.Menu(menubar)
 menubar.add_cascade(label="Model", menu=model_menu)
 model_menu.add_command(label="Run model", command=run)
 
-#root.mainloop()
-
 # Display initial model
 update(0, False)
+
+#root.mainloop()
