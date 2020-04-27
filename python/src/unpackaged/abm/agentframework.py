@@ -1,4 +1,5 @@
 import random
+import unittest
 
 class Agent():
     """
@@ -103,6 +104,84 @@ class Agent():
                     average = (self.store + agent.store) / 2
                     self.store = average
                     agent.store = average
-                
-            
-        
+
+
+
+
+class AgentTestCase(unittest.TestCase):
+
+    def test_init(self):
+        environment = [[8]]
+        agents = []
+        y = 1
+        x = 2
+        agent = Agent(environment, agents, y, x)
+
+        # Test initial agent property values
+        self.assertEqual(agent.y, y)
+        self.assertEqual(agent.x, x)
+        self.assertEqual(len(agent.environment), 1)
+        self.assertEqual(len(agent.environment[0]), 1)
+
+    def test_move_limit(self):
+        # Unlikely to move past limit when high number of iterations used
+        for _ in range(1000):
+            y = 50
+            x = 50
+            agent = Agent([], [], y, x)
+            agent.move()
+            self.assertGreaterEqual(agent.x, x - 1)
+            self.assertLessEqual(agent.x, x + 1)
+            self.assertGreaterEqual(agent.y, y - 1)
+            self.assertLessEqual(agent.y, y + 1)
+
+    def test_eat(self):
+        environment = [[11]]
+        agent = Agent(environment, [], 0, 0)
+        agent.eat()
+        self.assertEqual(agent.store, 10)
+        self.assertEqual(environment[0][0], 1)
+
+    def test_no_eat_when_environment_depleted(self):
+        environment = [[10]]
+        agent = Agent(environment, [], 0, 0)
+        agent.eat()
+        self.assertEqual(agent.store, 0)
+        self.assertEqual(environment[0][0], 10)
+
+    def test_distance_between(self):
+        agent1 = Agent([[]], [], 0, 0)
+        agent2 = Agent([[]], [], 4, 3)
+        self.assertEqual(agent1.distance_between(agent2), 5)
+
+    def test_share_with_neighbours(self):
+        environment = self.create_environment()
+        agents = []
+        agent1 = Agent(environment, agents, 0, 0)
+        agent1.store = 10
+        agents.append(agent1)
+        agent2 = Agent(environment, agents, 0, 10)
+        agent2.store = 0
+        agents.append(agent2)
+
+        # Check nothing is shared when too far
+        agent1.share_with_neighbours(1)
+        self.assertEqual(agent1.store, 10)
+        self.assertEqual(agent2.store, 0)
+
+        # Check store is shared with nearby
+        agent1.share_with_neighbours(10)
+        self.assertEqual(agent1.store, 5)
+        self.assertEqual(agent2.store, 5)
+
+    def create_environment(self, initial_value=0, rows=100, columns=100):
+        environment = []
+        for i in range(rows):
+            environment.append([])
+            for j in range(columns):
+                environment[i].append(initial_value)
+        return environment
+                        
+
+if __name__ == '__main__':
+    unittest.main()
