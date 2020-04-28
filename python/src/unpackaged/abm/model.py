@@ -72,6 +72,8 @@ class Controller():
     
     def run_model(self):
         log("Running model...")
+        if self.animation is not None:
+            self.animation.event_source.stop()
         self.update_parameters()
         self.animation = matplotlib.animation.FuncAnimation(
             fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
