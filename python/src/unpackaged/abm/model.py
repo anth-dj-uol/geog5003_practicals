@@ -70,21 +70,34 @@ class Controller():
         )
         self.model.initialize()
     
-    def run_model(self):
-        log("Running model...")
-        if self.animation is not None:
-            self.animation.event_source.stop()
-        self.update_parameters()
-        self.animation = matplotlib.animation.FuncAnimation(
-            fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
-        self.view.canvas.draw()
-
     def iterate(self):
         self.model.iterate()
         self.update_view()
         
     def update_view(self):
         self.view.display(self.model.environment, self.model.agents)
+        self.view.canvas.draw()
+    
+    def run_model(self):
+        log("Running model...")
+        self.reset()
+        self.animation = matplotlib.animation.FuncAnimation(
+            fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
+        self.view.canvas.draw()
+    
+    def stop_animation(self):
+        if self.animation is not None:
+            self.animation.event_source.stop()
+    
+    def start_animation(self):
+        if self.animation is not None:
+            self.animation.event_source.start()
+    
+    def reset(self):
+        self.stop_animation()
+        self.update_parameters()
+        self.update_view()
+        self.view.canvas.draw()
 
 
 class View():
@@ -100,6 +113,9 @@ class View():
         model_menu = tkinter.Menu(menubar)
         menubar.add_cascade(label="Model", menu=model_menu)
         model_menu.add_command(label="Run model", command=self.on_run_model)
+        model_menu.add_command(label="Stop animation", command=self.on_stop)
+        model_menu.add_command(label="Start animation", command=self.on_start)
+        model_menu.add_command(label="Reset", command=self.on_reset)
         
         # Add parameter inputs    
         self.num_of_agents_entry = self.insert_labelled_entry(
@@ -118,6 +134,15 @@ class View():
     
     def on_run_model(self):
         self.controller.run_model()
+
+    def on_stop(self):
+        self.controller.stop_animation()
+
+    def on_start(self):
+        self.controller.start_animation()
+
+    def on_reset(self):
+        self.controller.reset()
 
     def display(self, environment, agents):
         """
