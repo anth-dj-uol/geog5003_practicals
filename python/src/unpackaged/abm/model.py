@@ -231,21 +231,22 @@ class Controller():
         """
         
         log("Running model.")
-        log(self.model)
         
-        # Reset current model
-        self.reset()
-                
-        # Start animation
-        self.animation = matplotlib.animation.FuncAnimation(
-            self.view.fig,
-            (lambda frame_number: self.iterate()),
-            interval=10,
-            repeat=False,
-            frames=self.model.num_of_iterations)
-        
-        # Render animation
-        self.view.canvas.draw()
+        # Start animation if one exists
+        if self.animation is not None:
+            self.animation.event_source.start()
+        else:
+            log(self.model)                            
+            # Start animation
+            self.animation = matplotlib.animation.FuncAnimation(
+                self.view.fig,
+                (lambda frame_number: self.iterate()),
+                interval=10,
+                repeat=False,
+                frames=self.model.num_of_iterations)
+            
+            # Render animation
+            self.view.canvas.draw()
 
 
     def stop_animation(self):
@@ -263,23 +264,6 @@ class Controller():
         # Stop animation if one exists
         if self.animation is not None:
             self.animation.event_source.stop()
-
-
-    def start_animation(self):
-        """
-        Continue an animation that has been stopped.
-
-        Returns
-        -------
-        None.
-
-        """
-        
-        log("Starting animation.")
-        
-        # Start animation if one exists
-        if self.animation is not None:
-            self.animation.event_source.start()
 
 
     def reset(self):
@@ -370,11 +354,10 @@ class View():
         root.config(menu=menubar)
         model_menu = tkinter.Menu(menubar)
         menubar.add_cascade(label="Model", menu=model_menu)
-        model_menu.add_command(label="Run model", command=self._on_run_model)
-        model_menu.add_command(label="Stop animation", command=self._on_stop)
-        model_menu.add_command(label="Start animation", command=self._on_start)
+        model_menu.add_command(label="Run current model", command=self._on_run_model)
+        model_menu.add_command(label="Pause", command=self._on_stop)
         model_menu.add_command(label="Reset", command=self._on_reset)
-        model_menu.add_command(label="Load Parameters", command=self._on_load_parameters)
+        model_menu.add_command(label="Update model", command=self._on_load_parameters)
         
         parameters_frame = tkinter.Frame(root)
         
@@ -498,18 +481,6 @@ class View():
 
         """
         self.controller.stop_animation()
-
-
-    def _on_start(self):
-        """
-        Trigger an animation start event
-
-        Returns
-        -------
-        None.
-
-        """
-        self.controller.start_animation()
 
 
     def _on_reset(self):
