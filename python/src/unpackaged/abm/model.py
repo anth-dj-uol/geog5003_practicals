@@ -23,6 +23,7 @@ import agentframework
 default_num_of_agents = 50
 default_num_of_iterations = 200
 default_neighbourhood_size = 20
+default_agent_store_size = 100
 default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
@@ -115,9 +116,25 @@ class Controller():
             except:
                 raise Exception("Neighbourhood size must be an integer")
 
+        agent_store_size = None
+        agent_store_size_text = self.view.agent_store_size_entry.get()
+        if len(agent_store_size_text) > 0:
+            try:
+                agent_store_size = int(agent_store_size_text)
+            except:
+                raise Exception("Agent store size must be an integer")
+
+        starting_positions_url = self.view.starting_positions_url_entry.get()
+
+        environment_filepath = self.view.environment_filepath_entry.get()
+
+        environment_limit = self.view.environment_limit_entry.get()
+
         # Update model parameters
         self.model.set_parameters(num_of_agents, num_of_iterations,
-                                  neighbourhood_size)
+                                  neighbourhood_size, agent_store_size,
+                                  starting_positions_url, environment_filepath, 
+                                  environment_limit)
         
         # Update view parameters
         self.update_parameters_view()
@@ -170,6 +187,14 @@ class Controller():
                                    self.model.num_of_iterations)
         self.set_entry_field_value(self.view.neighbourhood_size_entry,
                                    self.model.neighbourhood_size)
+        self.set_entry_field_value(self.view.agent_store_size_entry,
+                                   self.model.agent_store_size)
+        self.set_entry_field_value(self.view.starting_positions_url_entry,
+                                   self.model.starting_positions_url)
+        self.set_entry_field_value(self.view.environment_filepath_entry,
+                                   self.model.environment_filepath)
+        self.set_entry_field_value(self.view.environment_limit_entry,
+                                   self.model.environment_limit)
 
 
     def set_entry_field_value(self, entry_field, value):
@@ -334,29 +359,39 @@ class View():
         
         parameters_frame = tkinter.Frame(root)
         
-        # Add parameter inputs    
+        # Add parameter inputs
+    
         self.num_of_agents_entry = self._insert_labelled_entry(
             parameters_frame, 'Number of Agents:', "")
+
         self.num_of_iterations_entry = self._insert_labelled_entry(
             parameters_frame, 'Number of Iterations:', "",
             1, 0, 1, 1)
+
         self.neighbourhood_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Neighbourhood Size:', "",
+            parameters_frame, 'Agent Store Size:', "",
             2, 0, 2, 1)
-        
-        self.starting_positions_url = self._insert_labelled_entry(
-            parameters_frame, 'Starting positions URL:',
+
+        self.agent_store_size_entry = self._insert_labelled_entry(
+            parameters_frame, 'Neighbourhood Size:', "",
+            3, 0, 3, 1)
+
+        self.starting_positions_url_entry = self._insert_labelled_entry(
+            parameters_frame, 'Starting Positions URL:',
             "",
             0, 2, 0, 3)
-        self.environment_filepath = self._insert_labelled_entry(
-            parameters_frame, 'Environment file path:',
+
+        self.environment_filepath_entry = self._insert_labelled_entry(
+            parameters_frame, 'Environment File Path:',
             "",
             1, 2, 1, 3)
-        self.environment_limit = self._insert_labelled_entry(
-            parameters_frame, 'Environment limit (x, y):',
+
+        self.environment_limit_entry = self._insert_labelled_entry(
+            parameters_frame, 'Environment Limit (x, y):',
             "",
             2, 2, 2, 3)
 
+        # Store a reference to the root view
         self.root = root
         
         # Add canvas for rendering
@@ -555,7 +590,11 @@ class Model():
         # Set default parameters
         self.set_parameters(default_num_of_agents,
                             default_num_of_iterations,
-                            default_neighbourhood_size)
+                            default_neighbourhood_size,
+                            default_agent_store_size,
+                            default_start_positions_url,
+                            default_environment_filepath,
+                            default_environment_limit)
         
         # Initialize model properties
         self.initialize()
@@ -616,7 +655,9 @@ Neighbourhood size: {}
     
     
     def set_parameters(self, num_of_agents=None, num_of_iterations=None,
-                       neighbourhood_size=None):
+                       neighbourhood_size=None, agent_store_size=None,
+                       starting_positions_url=None, environment_filepath=None,
+                       environment_limit=None):
         """
         Set new model parameters
 
@@ -644,6 +685,15 @@ Neighbourhood size: {}
 
         if neighbourhood_size is not None:
             self.neighbourhood_size = neighbourhood_size
+            
+        if agent_store_size is not None:
+            self.agent_store_size = agent_store_size
+
+        self.starting_positions_url = starting_positions_url
+
+        self.environment_filepath = environment_filepath
+
+        self.environment_limit = environment_limit
 
     
     def _fetch_start_positions(self, url):
