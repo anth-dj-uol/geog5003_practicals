@@ -27,6 +27,7 @@ default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
+default_environment_limit = "100,100"
 
 
 def log(message):
@@ -293,14 +294,31 @@ class View():
         model_menu.add_command(label="Reset", command=self._on_reset)
         model_menu.add_command(label="Load Parameters", command=self._on_load_parameters)
         
+        parameters_frame = tkinter.Frame(root)
+        
         # Add parameter inputs    
         self.num_of_agents_entry = self._insert_labelled_entry(
-            tkinter.Frame(root), 'Number of Agents:', default_num_of_agents)
+            parameters_frame, 'Number of Agents:', default_num_of_agents)
         self.num_of_iterations_entry = self._insert_labelled_entry(
-            tkinter.Frame(root), 'Number of Iterations:', default_num_of_iterations)
+            parameters_frame, 'Number of Iterations:', default_num_of_iterations,
+            1, 0, 1, 1)
         self.neighbourhood_size_entry = self._insert_labelled_entry(
-            tkinter.Frame(root), 'Neighbourhood Size:', default_neighbourhood_size)
-    
+            parameters_frame, 'Neighbourhood Size:', default_neighbourhood_size,
+            2, 0, 2, 1)
+        
+        self.starting_positions_url = self._insert_labelled_entry(
+            parameters_frame, 'Starting positions URL:',
+            default_start_positions_url,
+            0, 2, 0, 3)
+        self.environment_filepath = self._insert_labelled_entry(
+            parameters_frame, 'Environment file path:',
+            default_environment_filepath,
+            1, 2, 1, 3)
+        self.environment_limit = self._insert_labelled_entry(
+            parameters_frame, 'Environment limit (x, y):',
+            default_environment_limit,
+            2, 2, 2, 3)
+
         self.root = root
         
         # Add canvas for rendering
@@ -421,7 +439,8 @@ class View():
         self.controller.load_parameters()
 
 
-    def _insert_labelled_entry(self, row, label, default_value):
+    def _insert_labelled_entry(self, row, label, default_value, label_row=0, 
+                               label_column=0, entry_row=0, entry_column=1):
         """
         Return an entry field widget with the given label and default value.
 
@@ -433,6 +452,14 @@ class View():
             Entry field text label.
         default_value : str
             Default value for the entry field.
+        label_row : int, optional
+            Row to insert the label. The default is 0.
+        label_column : int, optional
+            Column to insert the label. The default is 0.
+        entry_row : int, optional
+            Row to insert the entry field. The default is 0.
+        entry_column : int, optional
+            Column to insert the entry field. The default is 1.
 
         Returns
         -------
@@ -443,17 +470,17 @@ class View():
 
         # Create the label element
         label = tkinter.Label(row, text=label)
-        label.grid(row=0)
+        label.grid(row=label_row, column=label_column)
         
         # Create the entry element
         entry = tkinter.Entry(row)
-        entry.grid(row=0, column=1)
+        entry.grid(row=entry_row, column=entry_column)
         
         # Set the default value
         entry.insert(0, str(default_value))
         
         # Add to the GUI
-        row.pack(side=tkinter.TOP, fill=tkinter.X, padx=4, pady=8)
+        row.pack(side=tkinter.TOP, fill=tkinter.X, padx=8, pady=8)
         return entry
         
 
