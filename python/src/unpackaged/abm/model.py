@@ -449,6 +449,11 @@ class View():
 
     def _on_close(self):
         log("Shutting down program.")
+        
+        # Close all open figures
+        matplotlib.pyplot.close('all')
+        
+        # Quit the GUI program and free up memory
         self.root.quit()
         self.root.destroy()
 
