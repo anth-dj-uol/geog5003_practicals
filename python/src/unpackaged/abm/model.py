@@ -73,6 +73,7 @@ class Controller():
         
         # Display initial model view
         self.update_view()
+        self.update_parameters_view();
         self.view.root.mainloop()
     
     
@@ -89,24 +90,37 @@ class Controller():
         log("Updating model parameters.")
 
         # Check user-provided parameter values
-        try:
-            num_of_agents = int(self.view.num_of_agents_entry.get())
-        except:
-            raise Exception("Number of agents must be an integer")
+        
+        num_of_agents = None
+        num_of_agents_text = self.view.num_of_agents_entry.get()
+        if len(num_of_agents_text) > 0:
+            try:
+                num_of_agents = int(num_of_agents_text)
+            except:
+                raise Exception("Number of agents must be an integer")
 
-        try:
-            num_of_iterations = int(self.view.num_of_iterations_entry.get())
-        except:
-            raise Exception("Number of iterations must be an integer")
+        num_of_iterations = None
+        num_of_iterations_text = self.view.num_of_iterations_entry.get()
+        if len(num_of_iterations_text) > 0:
+            try:
+                num_of_iterations = int(num_of_iterations_text)
+            except:
+                raise Exception("Number of iterations must be an integer")
 
-        try:
-            neighbourhood_size = int(self.view.neighbourhood_size_entry.get())
-        except:
-            raise Exception("Neighbourhood size must be an integer")
+        neighbourhood_size = None
+        neighbourhood_size_text = self.view.neighbourhood_size_entry.get()
+        if len(neighbourhood_size_text) > 0:
+            try:
+                neighbourhood_size = int(neighbourhood_size_text)
+            except:
+                raise Exception("Neighbourhood size must be an integer")
 
         # Update model parameters
         self.model.set_parameters(num_of_agents, num_of_iterations,
                                   neighbourhood_size)
+        
+        # Update view parameters
+        self.update_parameters_view()
         
 
     def iterate(self):
@@ -136,7 +150,31 @@ class Controller():
 
         """
         self.view.display(self.model)
+    
+    
+    def update_parameters_view(self):
+        """
+        Update the parameter entry fields in the View from values in the Model.
 
+        Returns
+        -------
+        None.
+
+        """
+
+        log("Updating view entry fields")     
+        
+        self.set_entry_field_value(self.view.num_of_agents_entry,
+                                   self.model.num_of_agents)
+        self.set_entry_field_value(self.view.num_of_iterations_entry,
+                                   self.model.num_of_iterations)
+        self.set_entry_field_value(self.view.neighbourhood_size_entry,
+                                   self.model.neighbourhood_size)
+
+
+    def set_entry_field_value(self, entry_field, value):
+        entry_field.delete(0, tkinter.END)
+        entry_field.insert(0, value)
 
     def run_model(self):
         """
@@ -298,25 +336,25 @@ class View():
         
         # Add parameter inputs    
         self.num_of_agents_entry = self._insert_labelled_entry(
-            parameters_frame, 'Number of Agents:', default_num_of_agents)
+            parameters_frame, 'Number of Agents:', "")
         self.num_of_iterations_entry = self._insert_labelled_entry(
-            parameters_frame, 'Number of Iterations:', default_num_of_iterations,
+            parameters_frame, 'Number of Iterations:', "",
             1, 0, 1, 1)
         self.neighbourhood_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Neighbourhood Size:', default_neighbourhood_size,
+            parameters_frame, 'Neighbourhood Size:', "",
             2, 0, 2, 1)
         
         self.starting_positions_url = self._insert_labelled_entry(
             parameters_frame, 'Starting positions URL:',
-            default_start_positions_url,
+            "",
             0, 2, 0, 3)
         self.environment_filepath = self._insert_labelled_entry(
             parameters_frame, 'Environment file path:',
-            default_environment_filepath,
+            "",
             1, 2, 1, 3)
         self.environment_limit = self._insert_labelled_entry(
             parameters_frame, 'Environment limit (x, y):',
-            default_environment_limit,
+            "",
             2, 2, 2, 3)
 
         self.root = root
@@ -439,7 +477,7 @@ class View():
         self.controller.load_parameters()
 
 
-    def _insert_labelled_entry(self, row, label, default_value, label_row=0, 
+    def _insert_labelled_entry(self, row, label, default_value="", label_row=0, 
                                label_column=0, entry_row=0, entry_column=1):
         """
         Return an entry field widget with the given label and default value.
@@ -514,8 +552,9 @@ class Model():
         self.environment = []
         self.start_positions = self._fetch_start_positions(default_start_positions_url)
 
-        # Set default parameters        
-        self.set_parameters(default_num_of_agents, default_num_of_iterations,
+        # Set default parameters
+        self.set_parameters(default_num_of_agents,
+                            default_num_of_iterations,
                             default_neighbourhood_size)
         
         # Initialize model properties
