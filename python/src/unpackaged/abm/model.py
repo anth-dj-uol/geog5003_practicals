@@ -28,7 +28,7 @@ default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
-default_environment_limit = "100,100"
+default_environment_limit = 100
 
 
 def log(message):
@@ -89,9 +89,8 @@ class Controller():
         """
         
         log("Updating model parameters.")
-
-        # Check user-provided parameter values
         
+        # Validate and get number of agents
         num_of_agents = None
         num_of_agents_text = self.view.num_of_agents_entry.get()
         if len(num_of_agents_text) > 0:
@@ -100,6 +99,7 @@ class Controller():
             except:
                 raise Exception("Number of agents must be an integer")
 
+        # Validate and get number of iterations
         num_of_iterations = None
         num_of_iterations_text = self.view.num_of_iterations_entry.get()
         if len(num_of_iterations_text) > 0:
@@ -108,6 +108,7 @@ class Controller():
             except:
                 raise Exception("Number of iterations must be an integer")
 
+        # Validate and get neighbourhood size
         neighbourhood_size = None
         neighbourhood_size_text = self.view.neighbourhood_size_entry.get()
         if len(neighbourhood_size_text) > 0:
@@ -116,6 +117,7 @@ class Controller():
             except:
                 raise Exception("Neighbourhood size must be an integer")
 
+        # Validate and get agent store size
         agent_store_size = None
         agent_store_size_text = self.view.agent_store_size_entry.get()
         if len(agent_store_size_text) > 0:
@@ -124,17 +126,29 @@ class Controller():
             except:
                 raise Exception("Agent store size must be an integer")
 
-        starting_positions_url = self.view.starting_positions_url_entry.get()
+        # Get start positions URL
+        start_positions_url = self.view.start_positions_url_entry.get()
 
+        # Get environment filepath
         environment_filepath = self.view.environment_filepath_entry.get()
 
-        environment_limit = self.view.environment_limit_entry.get()
+        # Validate and get environment limit values
+        environment_limit_text = self.view.environment_limit_entry.get()
+        x_lim = None
+        y_lim = None
+        if len(environment_limit_text) > 0:
+            try:
+                x_lim, y_lim = environment_limit_text.split(",")
+                x_lim = int(x_lim)
+                y_lim = int(y_lim)
+            except:
+                raise Exception("Environment limit must be of the form X,Y, where X and Y are integers")
 
         # Update model parameters
         self.model.set_parameters(num_of_agents, num_of_iterations,
                                   neighbourhood_size, agent_store_size,
-                                  starting_positions_url, environment_filepath, 
-                                  environment_limit)
+                                  start_positions_url, environment_filepath, 
+                                  x_lim, y_lim)
         
         # Update view parameters
         self.update_parameters_view()
@@ -189,12 +203,17 @@ class Controller():
                                    self.model.neighbourhood_size)
         self.set_entry_field_value(self.view.agent_store_size_entry,
                                    self.model.agent_store_size)
-        self.set_entry_field_value(self.view.starting_positions_url_entry,
-                                   self.model.starting_positions_url)
+        self.set_entry_field_value(self.view.start_positions_url_entry,
+                                   self.model.start_positions_url)
         self.set_entry_field_value(self.view.environment_filepath_entry,
                                    self.model.environment_filepath)
+        
+        environment_limit_text = ""
+        if self.model.x_lim is not None and self.model.x_lim is not None:
+            environment_limit_text = "{},{}".format(self.model.x_lim,
+                                                  self.model.y_lim)
         self.set_entry_field_value(self.view.environment_limit_entry,
-                                   self.model.environment_limit)
+                                   environment_limit_text)
 
 
     def set_entry_field_value(self, entry_field, value):
@@ -376,7 +395,7 @@ class View():
             parameters_frame, 'Neighbourhood Size:', "",
             3, 0, 3, 1)
 
-        self.starting_positions_url_entry = self._insert_labelled_entry(
+        self.start_positions_url_entry = self._insert_labelled_entry(
             parameters_frame, 'Starting Positions URL:',
             "",
             0, 2, 0, 3)
@@ -590,7 +609,6 @@ class Model():
         # Initialize model properties
         self.agents = []
         self.environment = []
-        self.start_positions = self._fetch_start_positions(default_start_positions_url)
 
         # Set default parameters
         self.set_parameters(default_num_of_agents,
@@ -599,8 +617,9 @@ class Model():
                             default_agent_store_size,
                             default_start_positions_url,
                             default_environment_filepath,
+                            default_environment_limit,
                             default_environment_limit)
-        
+
         # Initialize model properties
         self.initialize()
 
@@ -661,8 +680,8 @@ Neighbourhood size: {}
     
     def set_parameters(self, num_of_agents=None, num_of_iterations=None,
                        neighbourhood_size=None, agent_store_size=None,
-                       starting_positions_url=None, environment_filepath=None,
-                       environment_limit=None):
+                       start_positions_url=None, environment_filepath=None,
+                       environment_x_lim=None, environment_y_lim=None):
         """
         Set new model parameters
 
@@ -694,11 +713,18 @@ Neighbourhood size: {}
         if agent_store_size is not None:
             self.agent_store_size = agent_store_size
 
-        self.starting_positions_url = starting_positions_url
+        self.start_positions_url = start_positions_url
+        if self.start_positions_url is not None and len(self.start_positions_url) > 0:
+            log("Fetching start positions from URL: {}".format(self.start_positions_url))
+            self.start_positions = self._fetch_start_positions(self.start_positions_url)
+        else:
+            self.start_positions = ([], [])
 
         self.environment_filepath = environment_filepath
 
-        self.environment_limit = environment_limit
+        self.x_lim = environment_x_lim
+
+        self.y_lim = environment_y_lim
 
     
     def _fetch_start_positions(self, url):
@@ -777,15 +803,7 @@ Neighbourhood size: {}
         
         # Initialize the environment plane
         environment_plane = []
-        
-        start_positions = self.start_positions
-        x_lim = None
-        y_lim = None
-        if start_positions is not None:
-            start_xs, start_ys = self.start_positions
-            x_lim = len(start_xs)
-            y_lim = len(start_ys)
-            
+
         
         # Open the given file
         with open(filename, newline='') as f:
@@ -802,7 +820,11 @@ Neighbourhood size: {}
 
 
         # Create new environment with the given plane
-        self.environment = agentframework.Environment(environment_plane, x_lim, y_lim)
+        log("Creating new environment.")
+        log(self.x_lim)
+        log(self.y_lim)
+        self.environment = agentframework.Environment(environment_plane,
+                                                      self.x_lim, self.y_lim)
 
 
 
