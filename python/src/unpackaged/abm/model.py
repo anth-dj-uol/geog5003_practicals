@@ -71,6 +71,7 @@ class Controller():
         self.model = model
         self.view = view_class(self)
         self.animation = None
+        self.has_run = False
         
         # Display initial model view
         self.update_view()
@@ -89,6 +90,9 @@ class Controller():
         """
         
         log("Updating model parameters.")
+        
+        # Stop any running animation
+        self.stop_animation()
         
         # Validate and get number of agents
         num_of_agents = None
@@ -231,22 +235,24 @@ class Controller():
         """
         
         log("Running model.")
+                
+        # Reset the current model
+        if self.has_run:
+            self.reset()
+
+        # Start animation
+        self.animation = matplotlib.animation.FuncAnimation(
+            self.view.fig,
+            (lambda frame_number: self.iterate()),
+            interval=10,
+            repeat=False,
+            frames=self.model.num_of_iterations)
         
-        # Start animation if one exists
-        if self.animation is not None:
-            self.animation.event_source.start()
-        else:
-            log(self.model)                            
-            # Start animation
-            self.animation = matplotlib.animation.FuncAnimation(
-                self.view.fig,
-                (lambda frame_number: self.iterate()),
-                interval=10,
-                repeat=False,
-                frames=self.model.num_of_iterations)
-            
-            # Render animation
-            self.view.canvas.draw()
+        # Track
+        self.has_run = True
+        
+        # Render animation
+        self.view.canvas.draw()
 
 
     def stop_animation(self):
@@ -266,6 +272,23 @@ class Controller():
             self.animation.event_source.stop()
 
 
+    def start_animation(self):
+        """
+        Continue a running animation.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        log("Starting animation.")
+
+        # Stop animation if one exists
+        if self.animation is not None:
+            self.animation.event_source.start()
+
+
     def reset(self):
         """
         Reset the model.
@@ -281,8 +304,9 @@ class Controller():
         
         log("Resetting model.")
         
-        # Stop any currently running animation
+        # Cancel any currently running animation
         self.stop_animation()
+        self.animation = None
    
         # Intialize model with new parameters
         self.model.initialize()
@@ -291,10 +315,22 @@ class Controller():
         self.update_view()
         self.view.canvas.draw()
         
+        # Track that a reset has occurred
+        self.has_run = False
+
         log("Model has been reset.")
         log(self.model)
 
+
     def load_parameters(self):
+        """
+        Load the parameters specified in the View.
+
+        Returns
+        -------
+        None.
+
+        """
         
         try:
             # Update the model
@@ -354,10 +390,12 @@ class View():
         root.config(menu=menubar)
         model_menu = tkinter.Menu(menubar)
         menubar.add_cascade(label="Model", menu=model_menu)
-        model_menu.add_command(label="Run current model", command=self._on_run_model)
-        model_menu.add_command(label="Pause", command=self._on_stop)
+        model_menu.add_command(label="Run model", command=self._on_run_model)
+        model_menu.add_command(label="Pause animation", command=self._on_stop)
+        model_menu.add_command(label="Continue animation", command=self._on_start)
         model_menu.add_command(label="Reset", command=self._on_reset)
-        model_menu.add_command(label="Update model", command=self._on_load_parameters)
+        model_menu.add_command(label="Update parameters", command=self._on_load_parameters)
+        model_menu.add_command(label="Exit", command=self._on_exit)
         
         parameters_frame = tkinter.Frame(root)
         
@@ -483,9 +521,21 @@ class View():
         self.controller.stop_animation()
 
 
+    def _on_start(self):
+        """
+        Trigger an animation start event
+
+        Returns
+        -------
+        None.
+
+        """
+        self.controller.start_animation()
+
+
     def _on_reset(self):
         """
-        Trigger a reset event
+        Trigger a modelreset event
 
         Returns
         -------
@@ -507,6 +557,19 @@ class View():
         self.controller.load_parameters()
 
 
+    def _on_exit(self):
+        """
+        Exit the program
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        self._on_close()
+        
+        
     def _insert_labelled_entry(self, row, label, default_value="", label_row=0, 
                                label_column=0, entry_row=0, entry_column=1):
         """
