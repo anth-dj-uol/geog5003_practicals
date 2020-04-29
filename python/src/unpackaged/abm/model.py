@@ -238,7 +238,11 @@ class Controller():
                 
         # Reset the current model
         if self.has_run:
-            self.reset()
+            try:
+                self.reset()
+            except Exception as e:
+                self.view.show_error(e)
+                return
 
         # Start animation
         self.animation = matplotlib.animation.FuncAnimation(
@@ -397,9 +401,9 @@ class View():
         model_menu.add_command(label="Update parameters", command=self._on_load_parameters)
         model_menu.add_command(label="Exit", command=self._on_exit)
         
-        parameters_frame = tkinter.Frame(root)
         
         # Add parameter inputs
+        parameters_frame = tkinter.Frame(root)
     
         self.num_of_agents_entry = self._insert_labelled_entry(
             parameters_frame, 'Number of Agents:', "")
@@ -853,13 +857,14 @@ Neighbourhood size: {}
                         row_list.append(value)
                     environment_plane.append(row_list)
         except:
+            # Display error message on enviroment read failure
             raise Exception("Unable to read environment from file: {}".format(filepath))
-
+            
+            # Abort creation of new environment
+            return
 
         # Create new environment with the given plane
         log("Creating new environment.")
-        log(self.x_lim)
-        log(self.y_lim)
         self.environment = agentframework.Environment(environment_plane,
                                                       self.x_lim, self.y_lim)
 
