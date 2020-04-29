@@ -27,11 +27,6 @@ default_filename = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'in.tx
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 
-# Prepare the visualization figure
-matplotlib.pyplot.ioff()
-fig = matplotlib.pyplot.figure(figsize=(7, 7))
-ax = fig.add_axes([0, 0, 1, 1])
-ax.set_autoscale_on(False)
 
 def log(message):
     """
@@ -82,7 +77,7 @@ class Controller():
         log("Running model...")
         self.reset()
         self.animation = matplotlib.animation.FuncAnimation(
-            fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
+            self.view.fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
         self.view.canvas.draw()
     
     def stop_animation(self):
@@ -102,6 +97,12 @@ class Controller():
 
 class View():
     def __init__(self):
+
+        # Prepare the visualization figure
+        matplotlib.pyplot.ioff()
+        self.fig = matplotlib.pyplot.figure(figsize=(7, 7))
+        ax = self.fig.add_axes([0, 0, 1, 1])
+        ax.set_autoscale_on(False)
 
         # Create GUI window
         root = tkinter.Tk()
@@ -128,7 +129,7 @@ class View():
         self.root = root
         
         # Add canvas
-        canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(fig, master=root)
+        canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(self.fig, master=root)
         canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
         self.canvas = canvas
     
@@ -153,7 +154,7 @@ class View():
         updated plot will be rendered showing the current position of each
         agent and the current environment data.
         """
-        fig.clear()
+        self.fig.clear()
         matplotlib.pyplot.ylim(0, 99)
         matplotlib.pyplot.xlim(0, 99)
         matplotlib.pyplot.imshow(environment)
