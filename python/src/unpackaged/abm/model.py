@@ -395,18 +395,18 @@ class View():
             parameters_frame, 'Neighbourhood Size:', "",
             3, 0, 3, 1)
 
-        self.start_positions_url_entry = self._insert_labelled_entry(
-            parameters_frame, 'Starting Positions URL:',
-            "",
-            0, 2, 0, 3)
-
         self.environment_filepath_entry = self._insert_labelled_entry(
             parameters_frame, 'Environment File Path:',
             "",
-            1, 2, 1, 3)
+            0, 2, 0, 3)
 
         self.environment_limit_entry = self._insert_labelled_entry(
             parameters_frame, 'Environment Limit (x, y):',
+            "",
+            1, 2, 1, 3)
+
+        self.start_positions_url_entry = self._insert_labelled_entry(
+            parameters_frame, 'Starting Positions URL:',
             "",
             2, 2, 2, 3)
 
@@ -650,7 +650,7 @@ Neighbourhood size: {}
         """
         
         # Create a new model environment
-        self._create_environment(default_environment_filepath)
+        self._create_environment(self.environment_filepath)
         
         # Create a new set of agents
         self._create_agents()
@@ -786,7 +786,7 @@ Neighbourhood size: {}
                 agentframework.Agent(self.environment, self.agents, y, x))
 
 
-    def _create_environment(self, filename):
+    def _create_environment(self, filepath):
         """
         Set the model environment using data from the provided file path.
 
@@ -806,17 +806,20 @@ Neighbourhood size: {}
 
         
         # Open the given file
-        with open(filename, newline='') as f:
-            
-            # Create a CSV reader
-            reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
-            
-            # Read in each row and column to obtain the 2-D environment data
-            for row in reader:
-                row_list = []
-                for value in row:
-                    row_list.append(value)
-                environment_plane.append(row_list)
+        try:
+            with open(filepath, newline='') as f:
+                
+                # Create a CSV reader
+                reader = csv.reader(f, quoting=csv.QUOTE_NONNUMERIC)
+                
+                # Read in each row and column to obtain the 2-D environment data
+                for row in reader:
+                    row_list = []
+                    for value in row:
+                        row_list.append(value)
+                    environment_plane.append(row_list)
+        except:
+            raise Exception("Unable to read environment from file: {}".format(filepath))
 
 
         # Create new environment with the given plane
