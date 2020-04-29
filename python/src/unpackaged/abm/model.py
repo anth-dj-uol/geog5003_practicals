@@ -33,18 +33,6 @@ def log(message):
     Print the message to standard output
     """
     print(message)
-
-def fetch_start_positions(url):
-    """
-    Return the start positions from the provided URL.
-    """
-    # Fetch start positions
-    r = requests.get(url)
-    content = r.text
-    soup = bs4.BeautifulSoup(content, 'html.parser')
-    td_xs = soup.find_all(attrs={"class" : "x"})
-    td_ys = soup.find_all(attrs={"class" : "y"})
-    return (td_xs, td_ys)
  
 
 class Controller():
@@ -183,7 +171,7 @@ class Model():
         self.num_of_agents = default_num_of_agents
         self.num_of_iterations = default_num_of_iterations
         self.neighbourhood_size = default_neighbourhood_size
-        self.start_positions = fetch_start_positions(default_start_positions_url)
+        self.start_positions = self.fetch_start_positions(default_start_positions_url)
         self.initialize()
         
     def initialize(self):
@@ -205,6 +193,18 @@ class Model():
         self.setup_agents()
 
     
+    def fetch_start_positions(self, url):
+        """
+        Return the start positions from the provided URL.
+        """
+        # Fetch start positions
+        r = requests.get(url)
+        content = r.text
+        soup = bs4.BeautifulSoup(content, 'html.parser')
+        td_xs = soup.find_all(attrs={"class" : "x"})
+        td_ys = soup.find_all(attrs={"class" : "y"})
+        return (td_xs, td_ys)
+
     def setup_agents(self):
         """
         Instatiate all agents, given the total number, their environment and
