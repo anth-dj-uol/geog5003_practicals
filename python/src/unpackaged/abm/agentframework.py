@@ -28,10 +28,6 @@ class Agent():
 
         """
 
-        # Set the start position
-        self.x = x if x != None else random.randint(0, 99)
-        self.y = y if y != None else random.randint(0, 99)
-        
         # Set a reference to the environment
         self.environment = environment
         
@@ -41,6 +37,10 @@ class Agent():
         # Initialize the store
         self.store = 0
 
+        # Set the start position
+        self.x = x if x != None else random.randint(0, environment.x_length)
+        self.y = y if y != None else random.randint(0, environment.y_length)
+        
 
     @property
     def x(self):
@@ -99,8 +99,8 @@ class Agent():
         """
 
         # Walk a random step on each axis
-        self.x = (self.x + self._get_random_step_value()) % 99
-        self.y = (self.y + self._get_random_step_value()) % 99
+        self.x = (self.x + self._get_random_step_value()) % self.environment.x_length
+        self.y = (self.y + self._get_random_step_value()) % self.environment.y_length
 
     
     def _get_random_step_value(self):
@@ -139,10 +139,10 @@ class Agent():
         """
 
         # Check that the current location has enough resources
-        if self.environment[self.y][self.x] > 10:
+        if self.environment.plane[self.y][self.x] > 10:
             
             # Eat a portion of the environment and store it locally
-            self.environment[self.y][self.x] -= 10
+            self.environment.plane[self.y][self.x] -= 10
             self.store += 10
     
 
@@ -202,6 +202,73 @@ class Agent():
 
 
 
+class Environment():
+    """
+    The Environment class represents the model environment. It consists of a
+    2-dimensional array representing the plane and properties to get the plane
+    x-axis length and y-axis length.
+    
+    """
+    
+    def __init__(self, environment_plane, x_lim=None, y_lim=None):
+        """
+        Instantiate an Environment.
+
+        Parameters
+        ----------
+        environment_plane : list[list[int]]
+            2-D environment plane with values representing the amount of
+            resources available at that coordinate.
+        x_lim : int, optional
+            Limit for the x-axis. The default is None.
+        y_lim : TYPE, optional
+            Limit for the y-axis. The default is None.
+
+        Returns
+        -------
+        None.
+
+        """
+
+        # Clear the current environment
+        self._plane = environment_plane
+        
+        # Set the y-axis length
+        self._y_length = len(self._plane)
+        if y_lim is not None and y_lim < self._y_length:
+            self._y_length = y_lim
+
+        # Set the x-axis length
+        if self._y_length > 0:
+            self._x_length = len(self._plane[0])
+            if x_lim is not None and x_lim < self._x_length:
+                self._x_length = x_lim
+
+
+    @property
+    def plane(self):
+        """
+        Get the environment plane.
+        """
+        return self._plane
+
+
+    @property
+    def y_length(self):
+        """
+        Get the y-axis length.
+        """
+        return self._y_length
+
+    @property
+    def x_length(self):
+        """
+        Get the x-axis length.
+        """
+        return self._x_length
+
+
+
 class AgentTestCase(unittest.TestCase):
     """
     The AgentTestCase class provides a collection of unit tests for
@@ -217,7 +284,7 @@ class AgentTestCase(unittest.TestCase):
         None.
 
         """
-        environment = [[8]]
+        environment = self.create_environment(8, 1, 1)
         agents = []
         y = 1
         x = 2
@@ -226,8 +293,8 @@ class AgentTestCase(unittest.TestCase):
         # Test initial agent property values
         self.assertEqual(agent.y, y)
         self.assertEqual(agent.x, x)
-        self.assertEqual(len(agent.environment), 1)
-        self.assertEqual(len(agent.environment[0]), 1)
+        self.assertEqual(len(agent.environment.plane), 1)
+        self.assertEqual(len(agent.environment.plane[0]), 1)
 
 
     def test_move_limit(self):
@@ -247,7 +314,7 @@ class AgentTestCase(unittest.TestCase):
         for _ in range(1000):
             y = 50
             x = 50
-            agent = Agent([], [], y, x)
+            agent = Agent(self.create_environment(), [], y, x)
             agent.move()
             self.assertGreaterEqual(agent.x, x - 1)
             self.assertLessEqual(agent.x, x + 1)
@@ -264,11 +331,11 @@ class AgentTestCase(unittest.TestCase):
         None.
 
         """
-        environment = [[11]]
+        environment = self.create_environment(11, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
         self.assertEqual(agent.store, 10)
-        self.assertEqual(environment[0][0], 1)
+        self.assertEqual(environment.plane[0][0], 1)
 
 
     def test_no_eat_when_environment_depleted(self):
@@ -282,11 +349,11 @@ class AgentTestCase(unittest.TestCase):
 
         """
 
-        environment = [[10]]
+        environment = self.create_environment(10, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
         self.assertEqual(agent.store, 0)
-        self.assertEqual(environment[0][0], 10)
+        self.assertEqual(environment.plane[0][0], 10)
 
 
     def test_distance_between(self):
@@ -359,7 +426,7 @@ class AgentTestCase(unittest.TestCase):
             environment.append([])
             for j in range(columns):
                 environment[i].append(initial_value)
-        return environment
+        return Environment(environment)
                         
 
 if __name__ == '__main__':

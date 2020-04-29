@@ -298,21 +298,17 @@ class View():
         None.
 
         """
-        
-        # Fetch the required model properties to be displayed
-        environment = model.environment
-        agents = model.agents
-        
+                
         # Reset the current view data
         self.fig.clear()
-        matplotlib.pyplot.ylim(0, 99)
-        matplotlib.pyplot.xlim(0, 99)
+        matplotlib.pyplot.ylim(0, model.environment.y_length)
+        matplotlib.pyplot.xlim(0, model.environment.x_length)
         
         # Render the environment
-        matplotlib.pyplot.imshow(environment)
+        matplotlib.pyplot.imshow(model.environment.plane)
         
         # Render each agent
-        for agent in agents:
+        for agent in model.agents:
             matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
 
 
@@ -557,10 +553,7 @@ Neighbourhood size: {}
         
         # Reset the current agents list
         self.agents = []
-        
-        # Calculate the environment size
-        environment_size = len(self.environment)
-        
+                
         # Get the initial start positions
         start_xs, start_ys = self.start_positions
         
@@ -569,9 +562,9 @@ Neighbourhood size: {}
             
             # Get the initial start position
             y = int(start_ys[i].text if len(start_ys) > i 
-                    else random.randint(0, environment_size - 1))
+                    else random.randint(0, self.environment.y_length - 1))
             x = int(start_xs[i].text if len(start_xs) > i 
-                    else random.randint(0, environment_size - 1))
+                    else random.randint(0, self.environment.x_length - 1))
             
             # Add new Agent to the model
             self.agents.append(
@@ -592,10 +585,19 @@ Neighbourhood size: {}
         None.
 
         """
-
-        # Clear the current environment
-        self.environment.clear()
-
+        
+        # Initialize the environment plane
+        environment_plane = []
+        
+        start_positions = self.start_positions
+        x_lim = None
+        y_lim = None
+        if start_positions is not None:
+            start_xs, start_ys = self.start_positions
+            x_lim = len(start_xs)
+            y_lim = len(start_ys)
+            
+        
         # Open the given file
         with open(filename, newline='') as f:
             
@@ -604,10 +606,14 @@ Neighbourhood size: {}
             
             # Read in each row and column to obtain the 2-D environment data
             for row in reader:
-                rowlist = []
+                row_list = []
                 for value in row:
-                    rowlist.append(value)
-                self.environment.append(rowlist)
+                    row_list.append(value)
+                environment_plane.append(row_list)
+
+
+        # Create new environment with the given plane
+        self.environment = agentframework.Environment(environment_plane, x_lim, y_lim)
 
 
 
