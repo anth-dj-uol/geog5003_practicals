@@ -28,4 +28,4 @@ When run, the model will simulate numerous agents randomly moving through their 
 
 ## Instructions
 
-Build and test instructions are available in the repository [README](https://github.com/anth-dj/geog5003_practicals/blob/master/README.md).
+Usage and test instructions are available in the repository [README](https://github.com/anth-dj/geog5003_practicals/blob/master/README.md).

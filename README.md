@@ -2,7 +2,7 @@
 
 This repository contains all source code for the University of Leeds GEOG5003 Assessment 1 and practical outputs.
 
-Information about this repository can be found on the aassociated [Agent Based Modelling](https://anth-dj.github.io/geog5003_practicals/) website.
+Information about this repository can be found on the associated [Agent Based Modelling](https://anth-dj.github.io/geog5003_practicals/) website.
 
 # Instructions
 
