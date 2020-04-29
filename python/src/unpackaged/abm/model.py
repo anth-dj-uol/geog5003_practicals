@@ -87,16 +87,26 @@ class Controller():
         
         log("Updating model parameters.")
 
-        # Update model parameters with GUI values
-        self.model.set_parameters(
-            int(self.view.num_of_agents_entry.get()),
-            int(self.view.num_of_iterations_entry.get()),
-            int(self.view.neighbourhood_size_entry.get())
-        )
-        
-        # Intialize model with new parameters
-        self.model.initialize()
+        # Check user-provided parameter values
+        try:
+            num_of_agents = int(self.view.num_of_agents_entry.get())
+        except:
+            raise Exception("Number of agents must be an integer")
 
+        try:
+            num_of_iterations = int(self.view.num_of_iterations_entry.get())
+        except:
+            raise Exception("Number of iterations must be an integer")
+
+        try:
+            neighbourhood_size = int(self.view.neighbourhood_size_entry.get())
+        except:
+            raise Exception("Neighbourhood size must be an integer")
+
+        # Update model parameters
+        self.model.set_parameters(num_of_agents, num_of_iterations,
+                                  neighbourhood_size)
+        
 
     def iterate(self):
         """
@@ -142,7 +152,7 @@ class Controller():
         
         # Reset current model
         self.reset()
-        
+                
         # Start animation
         self.animation = matplotlib.animation.FuncAnimation(
             self.view.fig,
@@ -206,16 +216,29 @@ class Controller():
         
         # Stop any currently running animation
         self.stop_animation()
-        
-        # Update the model
-        self.update_parameters()
-        
+   
+        # Intialize model with new parameters
+        self.model.initialize()
+             
         # Update the view
         self.update_view()
         self.view.canvas.draw()
         
-        log("New model:")
+        log("Model has been reset.")
         log(self.model)
+
+    def load_parameters(self):
+        
+        try:
+            # Update the model
+            self.update_parameters()
+            
+            # Reset current model
+            self.reset();
+            
+        except Exception as e:
+            self.view.show_error(e)
+
 
 
 
@@ -268,6 +291,7 @@ class View():
         model_menu.add_command(label="Stop animation", command=self._on_stop)
         model_menu.add_command(label="Start animation", command=self._on_start)
         model_menu.add_command(label="Reset", command=self._on_reset)
+        model_menu.add_command(label="Load Parameters", command=self._on_load_parameters)
         
         # Add parameter inputs    
         self.num_of_agents_entry = self._insert_labelled_entry(
@@ -313,6 +337,23 @@ class View():
         # Render each agent
         for agent in model.agents:
             matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
+
+    def show_error(self, message):
+        """
+        Display error message
+
+        Parameters
+        ----------
+        message : str
+            Error message to be displayed.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        tkinter.messagebox.showinfo("Error", message)
 
 
     def _on_close(self):
@@ -366,6 +407,18 @@ class View():
 
         """
         self.controller.reset()
+
+
+    def _on_load_parameters(self):
+        """
+        Trigger a load parameters event
+
+        Returns
+        -------
+        None.
+
+        """
+        self.controller.load_parameters()
 
 
     def _insert_labelled_entry(self, row, label, default_value):
@@ -496,7 +549,8 @@ Neighbourhood size: {}
             agents[i].share_with_neighbours(self.neighbourhood_size)
     
     
-    def set_parameters(self, num_of_agents, num_of_iterations, neighbourhood_size):
+    def set_parameters(self, num_of_agents=None, num_of_iterations=None,
+                       neighbourhood_size=None):
         """
         Set new model parameters
 
@@ -515,9 +569,15 @@ Neighbourhood size: {}
         None.
 
         """
-        self.num_of_agents = num_of_agents
-        self.num_of_iterations = num_of_iterations
-        self.neighbourhood_size = neighbourhood_size
+        
+        if num_of_agents is not None:
+            self.num_of_agents = num_of_agents
+
+        if num_of_iterations is not None:
+            self.num_of_iterations = num_of_iterations
+
+        if neighbourhood_size is not None:
+            self.neighbourhood_size = neighbourhood_size
 
     
     def _fetch_start_positions(self, url):
