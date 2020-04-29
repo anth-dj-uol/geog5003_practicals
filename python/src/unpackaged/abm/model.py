@@ -50,6 +50,12 @@ def log(message):
 
 
 class Controller():
+    """
+    The Controller class coordinates communication between the given Model
+    and View. It handles events that are triggered from the View and also
+    propagates changes that occur in the Model.
+    """
+    
     def __init__(self, model, view_class):
         """
         Instantiate a Controller
@@ -68,10 +74,10 @@ class Controller():
         """
 
         # Initialize model properties
-        self.model = model
-        self.view = view_class(self)
-        self.animation = None
-        self.has_run = False
+        self.model = model              # Store a reference to the model
+        self.view = view_class(self)    # Initialize the View
+        self.animation = None           # Used to track the animation
+        self.has_been_reset = False     # Track when a reset has occurred
         
         # Display initial model view
         self.update_view()
@@ -81,7 +87,9 @@ class Controller():
     
     def update_parameters(self):
         """
-        Update the model parameters from values specified in the GUI
+        Update the model parameters from values specified in the GUI.
+        
+        Will raise an exception when a parameter cannot be updated correctly.
 
         Returns
         -------
@@ -236,13 +244,9 @@ class Controller():
         
         log("Running model.")
                 
-        # Reset the current model
-        if self.has_run:
-            try:
-                self.reset()
-            except Exception as e:
-                self.view.show_error(e)
-                return
+        # Attempt to reset the current model
+        if not self.has_been_reset:
+            self.reset()
 
         # Start animation
         self.animation = matplotlib.animation.FuncAnimation(
@@ -253,7 +257,7 @@ class Controller():
             frames=self.model.num_of_iterations)
         
         # Track
-        self.has_run = True
+        self.has_been_reset = False
         
         # Render animation
         self.view.canvas.draw()
@@ -312,15 +316,20 @@ class Controller():
         self.stop_animation()
         self.animation = None
    
-        # Intialize model with new parameters
-        self.model.initialize()
+        # Attempt model initialization
+        try:
+            self.model.initialize()
+        except Exception as e:
+            # Abort initialization on error
+            self.view.show_error(e)
+            return
              
         # Update the view
         self.update_view()
         self.view.canvas.draw()
         
         # Track that a reset has occurred
-        self.has_run = False
+        self.has_been_reset = True
 
         log("Model has been reset.")
         log(self.model)
@@ -397,8 +406,6 @@ class View():
         model_menu.add_command(label="Run model", command=self._on_run_model)
         model_menu.add_command(label="Pause animation", command=self._on_stop)
         model_menu.add_command(label="Continue animation", command=self._on_start)
-        model_menu.add_command(label="Reset", command=self._on_reset)
-        model_menu.add_command(label="Update parameters", command=self._on_load_parameters)
         model_menu.add_command(label="Exit", command=self._on_exit)
         
         
@@ -434,6 +441,15 @@ class View():
             parameters_frame, 'Starting Positions URL:',
             "",
             2, 2, 2, 3)
+        
+        # Add a button to update parameters
+        load_button = tkinter.Button(parameters_frame, text="Update Model",
+                                     command=self._on_load_parameters)
+        load_button.grid(row=4, column=3)
+
+        
+        # Add the parameters frame to the GUI
+        parameters_frame.pack(side=tkinter.TOP, fill=tkinter.X, padx=8, pady=8)
 
         # Store a reference to the root view
         self.root = root
@@ -537,18 +553,6 @@ class View():
         self.controller.start_animation()
 
 
-    def _on_reset(self):
-        """
-        Trigger a modelreset event
-
-        Returns
-        -------
-        None.
-
-        """
-        self.controller.reset()
-
-
     def _on_load_parameters(self):
         """
         Trigger a load parameters event
@@ -614,8 +618,6 @@ class View():
         # Set the default value
         entry.insert(0, str(default_value))
         
-        # Add to the GUI
-        row.pack(side=tkinter.TOP, fill=tkinter.X, padx=8, pady=8)
         return entry
         
 
