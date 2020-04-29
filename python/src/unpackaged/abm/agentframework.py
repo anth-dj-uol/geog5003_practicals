@@ -145,28 +145,6 @@ class Agent():
             self.environment[self.y][self.x] -= 10
             self.store += 10
     
-    
-    def distance_between(self, agent):
-        """
-        Return the Pythagorian distance to the given `agent`.
-
-        Parameters
-        ----------
-        agent : Agent
-            The agent to calculate distance between.
-
-        Returns
-        -------
-        float
-            The distance between the specified agent.
-
-        """
-
-        return (
-                (self.x - agent.x)**2 + 
-                (self.y - agent.y)**2 
-        )**0.5
-
 
     def share_with_neighbours(self, neighbourhood_size):
         """
@@ -191,7 +169,7 @@ class Agent():
             if agent != self:
                 
                 # Check if within the distance threshold
-                distance = self.distance_between(agent)
+                distance = self._distance_between(agent)
                 if distance <= neighbourhood_size:
                     
                     # Share store contents by having each agent take
@@ -199,6 +177,28 @@ class Agent():
                     average = (self.store + agent.store) / 2
                     self.store = average
                     agent.store = average
+
+
+    def _distance_between(self, agent):
+        """
+        Return the Pythagorian distance to the given `agent`.
+
+        Parameters
+        ----------
+        agent : Agent
+            The agent to calculate distance between.
+
+        Returns
+        -------
+        float
+            The distance between the specified agent.
+
+        """
+
+        return (
+                (self.x - agent.x)**2 + 
+                (self.y - agent.y)**2 
+        )**0.5
 
 
 
@@ -301,7 +301,7 @@ class AgentTestCase(unittest.TestCase):
 
         agent1 = Agent([[]], [], 0, 0)
         agent2 = Agent([[]], [], 4, 3)
-        self.assertEqual(agent1.distance_between(agent2), 5)
+        self.assertEqual(agent1._distance_between(agent2), 5)
 
     def test_share_with_neighbours(self):
         """

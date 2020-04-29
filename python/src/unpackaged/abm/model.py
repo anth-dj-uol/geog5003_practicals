@@ -72,6 +72,7 @@ class Controller():
         # Display initial model view
         self.update_view()
     
+    
     def update_parameters(self):
         """
         Update the model parameters from values specified in the GUI
@@ -81,6 +82,8 @@ class Controller():
         None.
 
         """
+        
+        log("Updating model parameters.")
 
         # Update model parameters with GUI values
         self.model.set_parameters(
@@ -91,7 +94,8 @@ class Controller():
         
         # Intialize model with new parameters
         self.model.initialize()
-    
+
+
     def iterate(self):
         """
         Iterate the current model and update the view.
@@ -107,7 +111,8 @@ class Controller():
         
         # Update the view
         self.update_view()
-        
+
+
     def update_view(self):
         """
         Update the view with the current model state
@@ -118,7 +123,8 @@ class Controller():
 
         """
         self.view.display(self.model)
-    
+
+
     def run_model(self):
         """
         Run the currently configured model from the start.
@@ -129,7 +135,8 @@ class Controller():
 
         """
         
-        log("Running model...")
+        log("Running model.")
+        log(self.model)
         
         # Reset current model
         self.reset()
@@ -140,7 +147,8 @@ class Controller():
         
         # Render animation
         self.view.canvas.draw()
-    
+
+
     def stop_animation(self):
         """
         Stop a running animation.
@@ -151,10 +159,13 @@ class Controller():
 
         """
         
+        log("Stopping animation.")
+
         # Stop animation if one exists
         if self.animation is not None:
             self.animation.event_source.stop()
-    
+
+
     def start_animation(self):
         """
         Continue an animation that has been stopped.
@@ -165,10 +176,13 @@ class Controller():
 
         """
         
+        log("Starting animation.")
+        
         # Start animation if one exists
         if self.animation is not None:
             self.animation.event_source.start()
-    
+
+
     def reset(self):
         """
         Reset the model.
@@ -182,6 +196,8 @@ class Controller():
 
         """
         
+        log("Resetting model.")
+        
         # Stop any currently running animation
         self.stop_animation()
         
@@ -191,6 +207,10 @@ class Controller():
         # Update the view
         self.update_view()
         self.view.canvas.draw()
+        
+        log("New model:")
+        log(self.model)
+
 
 
 class View():
@@ -237,17 +257,17 @@ class View():
         root.config(menu=menubar)
         model_menu = tkinter.Menu(menubar)
         menubar.add_cascade(label="Model", menu=model_menu)
-        model_menu.add_command(label="Run model", command=self.on_run_model)
-        model_menu.add_command(label="Stop animation", command=self.on_stop)
-        model_menu.add_command(label="Start animation", command=self.on_start)
-        model_menu.add_command(label="Reset", command=self.on_reset)
+        model_menu.add_command(label="Run model", command=self._on_run_model)
+        model_menu.add_command(label="Stop animation", command=self._on_stop)
+        model_menu.add_command(label="Start animation", command=self._on_start)
+        model_menu.add_command(label="Reset", command=self._on_reset)
         
         # Add parameter inputs    
-        self.num_of_agents_entry = self.insert_labelled_entry(
+        self.num_of_agents_entry = self._insert_labelled_entry(
             tkinter.Frame(root), 'Number of Agents:', default_num_of_agents)
-        self.num_of_iterations_entry = self.insert_labelled_entry(
+        self.num_of_iterations_entry = self._insert_labelled_entry(
             tkinter.Frame(root), 'Number of Iterations:', default_num_of_iterations)
-        self.neighbourhood_size_entry = self.insert_labelled_entry(
+        self.neighbourhood_size_entry = self._insert_labelled_entry(
             tkinter.Frame(root), 'Neighbourhood Size:', default_neighbourhood_size)
     
         self.root = root
@@ -256,7 +276,8 @@ class View():
         canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(self.fig, master=root)
         canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
         self.canvas = canvas
-    
+
+
     def display(self, model):
         """
         Display the current state of the given model
@@ -288,7 +309,8 @@ class View():
         for agent in agents:
             matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
 
-    def on_run_model(self):
+
+    def _on_run_model(self):
         """
         Trigger a model run event
 
@@ -299,7 +321,8 @@ class View():
         """
         self.controller.run_model()
 
-    def on_stop(self):
+
+    def _on_stop(self):
         """
         Trigger an animation stop event
 
@@ -310,7 +333,8 @@ class View():
         """
         self.controller.stop_animation()
 
-    def on_start(self):
+
+    def _on_start(self):
         """
         Trigger an animation start event
 
@@ -321,7 +345,8 @@ class View():
         """
         self.controller.start_animation()
 
-    def on_reset(self):
+
+    def _on_reset(self):
         """
         Trigger a reset event
 
@@ -333,7 +358,7 @@ class View():
         self.controller.reset()
 
 
-    def insert_labelled_entry(self, row, label, default_value):
+    def _insert_labelled_entry(self, row, label, default_value):
         """
         Return an entry field widget with the given label and default value.
 
@@ -369,6 +394,7 @@ class View():
         return entry
         
 
+
 class Model():
     """
     The Model class represents an Agent-Based Model (ABM). It consists of a
@@ -403,7 +429,23 @@ class Model():
         
         # Initialize model properties
         self.initialize()
-        
+
+
+    def __str__(self):
+         return '''
+Model
+-----
+Number of agents: {}
+Number of iterations: {}
+Neighbourhood size: {}
+
+                '''.format(
+                    self.num_of_agents,
+                    self.num_of_iterations,
+                    self.neighbourhood_size
+                )
+
+
     def initialize(self):
         """
         Initialize the model properties.
@@ -419,6 +461,7 @@ class Model():
         
         # Create a new set of agents
         self._create_agents()
+
 
     def iterate(self):
         """
@@ -440,6 +483,7 @@ class Model():
             agents[i].move()
             agents[i].eat()
             agents[i].share_with_neighbours(self.neighbourhood_size)
+    
     
     def set_parameters(self, num_of_agents, num_of_iterations, neighbourhood_size):
         """
@@ -493,6 +537,7 @@ class Model():
         td_ys = soup.find_all(attrs={"class" : "y"})
         return (td_xs, td_ys)
 
+
     def _create_agents(self):
         """
         Generate new set of agents using the current model parameters
@@ -521,6 +566,7 @@ class Model():
             
             # Add new Agent to the model
             self.agents.append(agentframework.Agent(self.environment, self.agents, y, x))
+
 
     def _create_environment(self, filename):
         """
@@ -554,8 +600,9 @@ class Model():
                 self.environment.append(rowlist)
 
 
+
 def main():
-    log("Starting the Agent-Based Model GUI...")
+    log("Starting the Agent-Based Model program...")
     #root.mainloop()
     Controller(Model(), View)
 
