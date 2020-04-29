@@ -23,7 +23,8 @@ import agentframework
 default_num_of_agents = 50
 default_num_of_iterations = 200
 default_neighbourhood_size = 20
-default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'in.txt'
+default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
+    os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 
@@ -143,7 +144,11 @@ class Controller():
         
         # Start animation
         self.animation = matplotlib.animation.FuncAnimation(
-            self.view.fig, (lambda frame_number: self.iterate()), interval=10, repeat=False, frames=self.model.num_of_iterations)
+            self.view.fig,
+            (lambda frame_number: self.iterate()),
+            interval=10,
+            repeat=False,
+            frames=self.model.num_of_iterations)
         
         # Render animation
         self.view.canvas.draw()
@@ -273,7 +278,8 @@ class View():
         self.root = root
         
         # Add canvas for rendering
-        canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(self.fig, master=root)
+        canvas = matplotlib.backends.backend_tkagg.FigureCanvasTkAgg(self.fig, 
+                                                                     master=root)
         canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
         self.canvas = canvas
 
@@ -425,7 +431,8 @@ class Model():
         self.start_positions = self._fetch_start_positions(default_start_positions_url)
 
         # Set default parameters        
-        self.set_parameters(default_num_of_agents, default_num_of_iterations, default_neighbourhood_size)
+        self.set_parameters(default_num_of_agents, default_num_of_iterations,
+                            default_neighbourhood_size)
         
         # Initialize model properties
         self.initialize()
@@ -561,11 +568,14 @@ Neighbourhood size: {}
         for i in range(self.num_of_agents):
             
             # Get the initial start position
-            y = int(start_ys[i].text if len(start_ys) > i else random.randint(0, environment_size - 1))
-            x = int(start_xs[i].text if len(start_xs) > i else random.randint(0, environment_size - 1))
+            y = int(start_ys[i].text if len(start_ys) > i 
+                    else random.randint(0, environment_size - 1))
+            x = int(start_xs[i].text if len(start_xs) > i 
+                    else random.randint(0, environment_size - 1))
             
             # Add new Agent to the model
-            self.agents.append(agentframework.Agent(self.environment, self.agents, y, x))
+            self.agents.append(
+                agentframework.Agent(self.environment, self.agents, y, x))
 
 
     def _create_environment(self, filename):
