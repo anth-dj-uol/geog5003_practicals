@@ -72,6 +72,7 @@ class Controller():
         
         # Display initial model view
         self.update_view()
+        self.view.root.mainloop()
     
     
     def update_parameters(self):
@@ -256,6 +257,7 @@ class View():
         # Create GUI window
         root = tkinter.Tk()
         root.wm_title("Agent-Based Model")
+        root.protocol("WM_DELETE_WINDOW", self._on_close)
         
         # Create menu
         menubar = tkinter.Menu(root)
@@ -282,6 +284,7 @@ class View():
                                                                      master=root)
         canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
         self.canvas = canvas
+        
 
 
     def display(self, model):
@@ -311,6 +314,11 @@ class View():
         for agent in model.agents:
             matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
 
+
+    def _on_close(self):
+        log("Shutting down program.")
+        self.root.quit()
+        self.root.destroy()
 
     def _on_run_model(self):
         """
@@ -619,7 +627,6 @@ Neighbourhood size: {}
 
 def main():
     log("Starting the Agent-Based Model program...")
-    #root.mainloop()
     Controller(Model(), View)
 
 if __name__ == '__main__':
