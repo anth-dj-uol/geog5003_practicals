@@ -880,7 +880,8 @@ Environment limit: {},{}
             
             # Add new Agent to the model
             self.agents.append(
-                agentframework.Agent(self.environment, self.agents, y, x))
+                agentframework.Agent(self.environment, self.agents, y, x,
+                                     self.agent_store_size))
 
 
     def _create_environment(self, filepath):

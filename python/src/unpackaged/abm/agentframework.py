@@ -7,7 +7,7 @@ class Agent():
     with its environment and other agents.
     """
 
-    def __init__(self, environment, agents, y, x):
+    def __init__(self, environment, agents, y, x, store_size=0, bite_size=10):
         """
         Instantiate an Agent.
         
@@ -21,6 +21,9 @@ class Agent():
             Initial y-axis position.
         x : int
             Initial x-axis position.
+        store_size : int
+            Maximum capacity for the store. If < 0 is specified, there is no
+            store limit
 
         Returns
         -------
@@ -36,6 +39,12 @@ class Agent():
         
         # Initialize the store
         self.store = 0
+        
+        # Set the max store capacity
+        self.store_size = store_size
+        
+        # Initialize bite size
+        self.bite_size = bite_size
 
         # Set the start position
         self.x = x if x != None else random.randint(0, environment.x_length)
@@ -139,13 +148,44 @@ class Agent():
         """
 
         # Check that the current location has enough resources
-        if self.environment.plane[self.y][self.x] > 10:
+        if self.resources_available() and self.can_eat():
             
             # Eat a portion of the environment and store it locally
-            self.environment.plane[self.y][self.x] -= 10
-            self.store += 10
+            self.environment.plane[self.y][self.x] -= self.bite_size
+            self.store += self.bite_size
     
 
+    def resources_available(self):
+        """
+        Check if resources are available
+
+        Returns
+        -------
+        bool
+            Returns True if resources are available to eat, otherwise False
+            is returned.
+
+        """
+        
+        return self.environment.plane[self.y][self.x] > self.bite_size
+    
+
+    def can_eat(self):
+        """
+        Check if the agent can eat any more resources.
+
+        Returns
+        -------
+        bool
+            Returns True if the agent can still each, otherwise False
+            is returned.
+
+        """
+        
+        return self.store_size <= 0 or \
+            (self.store + self.bite_size) <= self.store_size
+        
+    
     def share_with_neighbours(self, neighbourhood_size):
         """
         Share the store contents with nearby agents.
