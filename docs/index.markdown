@@ -8,7 +8,7 @@ title: Overview
 
 | **Note**: GEOG5003 assessment details and source code references can be found on the [About]({{ site.baseurl }}/about) page |
 
-This repository contains a basic Agent-Based Model (ABM) written in Python. The ABM technique is useful in simulating the complex interaction of a group of subjects (called _agents_) and their environment by defining basic operations that are iteratively evaluated to reveal system-level behaviour.
+The [master branch](https://github.com/anth-dj/geog5003_practicals/tree/master) in this repository contains a basic Agent-Based Model (ABM) framework written in Python. The ABM technique is useful in simulating the complex interaction of a group of subjects (called _agents_) and their environment by defining basic operations that are iteratively evaluated to reveal system-level behaviour.
 
 Additional information about ABMs can be found in the following sources:
 - [Bonabeau, E., 2002. Agent-based modeling: Methods and techniques for simulating human systems. Proceedings of the national academy of sciences, 99(suppl 3), pp.7280-7287.](https://www.pnas.org/content/99/suppl_3/7280.short)
@@ -85,7 +85,7 @@ The ABM framework found in [this repository](https://github.com/anth-dj/geog5003
 
 ### Future Improvements
 
-There are many potential improvements that can be implemented for this program. Some improvements can include:
+There are many improvements that can be implemented for this program. Some potential improvements include:
 - Additional editable model parameters (e.g. animation speed, plot colours)
 - Ability to save the current model view to an image or CSV file
 - More robust error handling

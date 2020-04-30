@@ -6,6 +6,10 @@ permalink: /about/
 
 This website and the associated GitHub repository contents are a result of the first assessment in the _Programming for Geographical Information Analysis_ (GEOG5003) course from the [University of Leeds](https://www.leeds.ac.uk/).
 
+## Assessment Output
+
+The final output for the GEOG5003 Assessment 1 can be found on the [master branch](https://github.com/anth-dj/geog5003_practicals/tree/master) of this repository, with associated documentation available on the [Overview]({{ site.baseurl }}/) page.  The repository [README](https://github.com/anth-dj/geog5003_practicals/blob/master/README.md) file contains further instructions for building and testing the application.
+
 ## Sources and References
 
 - The Python source code in this repository is based on the practical outputs from the University of Leeds GEOG5003 course material
