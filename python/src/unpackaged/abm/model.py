@@ -21,7 +21,7 @@ import agentframework
 
 # Define default parameter values
 default_num_of_agents = 50
-default_num_of_iterations = 200
+default_num_of_iterations = 5000
 default_neighbourhood_size = 2
 default_agent_store_size = 4000
 default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
@@ -29,7 +29,7 @@ default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 default_environment_limit = 100
-default_agent_bite_size = 200
+default_agent_bite_size = 50
 default_animation_interval = 50
 
 
@@ -533,7 +533,8 @@ class View():
         
         # Render each agent
         for agent in model.agents:
-            matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
+            color = 'black' if agent.can_eat() else 'grey'
+            matplotlib.pyplot.scatter(agent.x, agent.y, color=color)
 
 
     def show_error(self, message):
@@ -792,17 +793,21 @@ Agent Bite Size: {}
         
         # Simulate an interaction step for each agent in the model
         agents = self.agents
+        
+        # Shuffle agents to remove artifacts from ordered lists
         random.shuffle(agents)
+
+        # Iterate through each agent
         for i in range(len(agents)):
             agent = agents[i]
             
             # Only move agent if it has store capacity
             if agent.can_eat():
+                is_done = False
                 agent.move()
                 if agent.resources_available():
                     agent.eat()
-                    agent.share_with_neighbours(self.neighbourhood_size)
-                    is_done = False
+                agent.share_with_neighbours(self.neighbourhood_size)
 
         return is_done
     
