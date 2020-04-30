@@ -7,7 +7,7 @@ class Agent():
     with its environment and other agents.
     """
 
-    def __init__(self, environment, agents, y, x, store_size=0, bite_size=10):
+    def __init__(self, environment, agents, y, x, store_size=0, bite_size=200):
         """
         Instantiate an Agent.
         

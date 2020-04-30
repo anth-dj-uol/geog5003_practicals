@@ -23,12 +23,13 @@ import agentframework
 default_num_of_agents = 50
 default_num_of_iterations = 200
 default_neighbourhood_size = 20
-default_agent_store_size = 100
+default_agent_store_size = 4000
 default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 default_environment_limit = 100
+default_animation_interval = 50
 
 
 def log(message):
@@ -79,11 +80,14 @@ class Controller():
         self.animation = None           # Used to track the animation
         self.has_been_reset = False     # Track when a reset has occurred
         
+        log("Initialized controller with current model:")
+        log(self.model)
+        
         # Display initial model view
         self.update_view()
         self.update_parameters_view();
         self.view.root.mainloop()
-    
+        
     
     def update_parameters(self):
         """
@@ -177,8 +181,12 @@ class Controller():
         """
         
         # Iterate model
-        self.model.iterate()
+        is_done = self.model.iterate()
         
+        if is_done:
+            log("Model simulation complete.")
+            self.stop_animation()
+
         # Update the view
         self.update_view()
 
@@ -272,7 +280,7 @@ class Controller():
         self.animation = matplotlib.animation.FuncAnimation(
             self.view.fig,
             (lambda frame_number: self.iterate()),
-            interval=10,
+            interval=default_animation_interval,
             repeat=False,
             frames=self.model.num_of_iterations)
         
@@ -442,11 +450,11 @@ class View():
             1, 0, 1, 1)
 
         self.neighbourhood_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Agent Store Size:', "",
+            parameters_frame, 'Neighbourhood Size:', "",
             2, 0, 2, 1)
 
         self.agent_store_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Neighbourhood Size:', "",
+            parameters_frame, 'Agent Store Size:', "",
             3, 0, 3, 1)
 
         self.environment_filepath_entry = self._insert_labelled_entry(
@@ -714,18 +722,18 @@ Number of agents: {}
 Number of iterations: {}
 Neighbourhood size: {}
 Agent Store size: {}
-Start Positions URL: {}
 Environment filepath: {}
 Environment limit: {},{}
+Start Positions URL: {}
 ===============================
                 '''.format(
                     self.num_of_agents,
                     self.num_of_iterations,
                     self.neighbourhood_size,
                     self.agent_store_size,
-                    self.start_positions_url,
                     self.environment_filepath,
-                    self.x_lim, self.y_lim
+                    self.x_lim, self.y_lim,
+                    self.start_positions_url,
                 )
 
 
@@ -755,18 +763,28 @@ Environment limit: {},{}
 
         Returns
         -------
-        None.
-
+        is_done : TYPE
+            Returns True if the simulation is complete, otherwise returns False.
         """
+        
+        # Initialize the done flag
+        is_done = True
         
         # Simulate an interaction step for each agent in the model
         agents = self.agents
         random.shuffle(agents)
         for i in range(len(agents)):
-            agents[i].move()
-            agents[i].eat()
-            agents[i].share_with_neighbours(self.neighbourhood_size)
-    
+            agent = agents[i]
+            
+            # Only move agent if it has store capacity
+            if agent.can_eat():
+                agent.move()
+                if agent.resources_available():
+                    agent.eat()
+                    agent.share_with_neighbours(self.neighbourhood_size)
+                    is_done = False
+
+        return is_done
     
     def set_parameters(self, num_of_agents=None, num_of_iterations=None,
                        neighbourhood_size=None, agent_store_size=None,
