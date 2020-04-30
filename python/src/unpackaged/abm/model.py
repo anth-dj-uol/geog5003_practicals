@@ -496,7 +496,7 @@ class View():
         # Add a button to update parameters
         load_button = tkinter.Button(parameters_frame, text="Update Model",
                                      command=self._on_load_parameters)
-        load_button.grid(row=4, column=3)
+        load_button.grid(row=0, column=4, padx=12)
 
         
         # Add the parameters frame to the GUI
