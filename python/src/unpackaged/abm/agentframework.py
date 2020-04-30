@@ -7,7 +7,7 @@ class Agent():
     with its environment and other agents.
     """
 
-    def __init__(self, environment, agents, y, x, store_size=0, bite_size=200):
+    def __init__(self, environment, agents, y, x, store_size=0, bite_size=10):
         """
         Instantiate an Agent.
         
@@ -326,7 +326,7 @@ class AgentTestCase(unittest.TestCase):
         """
         
         # Setup test case
-        environment = self.create_environment(8, 1, 1)
+        environment = EnvironmentTestCase.create_environment(8, 1, 1)
         agents = []
         y = 1
         x = 2
@@ -356,7 +356,7 @@ class AgentTestCase(unittest.TestCase):
         for _ in range(1000):
             y = 50
             x = 50
-            agent = Agent(self.create_environment(), [], y, x)
+            agent = Agent(EnvironmentTestCase.create_environment(), [], y, x)
             agent.move()
             self.assertGreaterEqual(agent.x, x - 1)
             self.assertLessEqual(agent.x, x + 1)
@@ -375,7 +375,7 @@ class AgentTestCase(unittest.TestCase):
         """
         
         # Setup test case
-        environment = self.create_environment(11, 1, 1)
+        environment = EnvironmentTestCase.create_environment(11, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
         
@@ -396,7 +396,7 @@ class AgentTestCase(unittest.TestCase):
         """
 
         # Setup test case
-        environment = self.create_environment(10, 1, 1)
+        environment = EnvironmentTestCase.create_environment(10, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
         
@@ -433,7 +433,7 @@ class AgentTestCase(unittest.TestCase):
         """
 
         # Set up test case
-        environment = self.create_environment()
+        environment = EnvironmentTestCase.create_environment()
         agents = []
         agent1 = Agent(environment, agents, 0, 0)
         agent1.store = 10
@@ -453,7 +453,36 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(agent2.store, 5)
 
 
-    def create_environment(self, initial_value=0, rows=100, columns=100):
+                        
+
+class EnvironmentTestCase(unittest.TestCase):
+    """
+    The EnvironmentTestCase class provides a collection of unit tests for
+    the Environment class.
+    """
+
+    def test_init(self):
+        """
+        Test the initial Environment property values.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        # Setup test case
+        environment = Environment([[11, 10, 9], [8, 7, 6]], 2, 1)
+
+        # Test initial agent property values
+        self.assertEqual(len(environment.plane), 2)
+        self.assertEqual(len(environment.plane[0]), 3)
+        self.assertEqual(environment.plane[0][0], 11)
+        self.assertEqual(environment.x_length, 2)
+        self.assertEqual(environment.y_length, 1)
+        
+
+    def create_environment(initial_value=0, rows=100, columns=100):
         """
         Create a 2-D environment.
 
@@ -482,7 +511,7 @@ class AgentTestCase(unittest.TestCase):
         
         # Create new environment from the initialized plane
         return Environment(environment)
-                        
+
 
 # Run unit tests when invoked as a script
 if __name__ == '__main__':

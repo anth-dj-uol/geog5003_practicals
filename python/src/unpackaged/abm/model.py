@@ -58,6 +58,20 @@ class Controller():
     The Controller class coordinates communication between the given Model
     and View. It handles events that are triggered from the View and also
     propagates changes that occur in the Model.
+    
+    Public Methods:
+        
+        update_parameters - updates the model parameters from the view values
+                        
+        run_model - start a model simulation
+        
+        stop_animation - stop a running animation
+        
+        start_animation - start a stopped animation
+        
+        reset - reset the model with its current parameters
+        
+        load_parameters - load the model parameters from the view
     """
     
     def __init__(self, model, view_class):
@@ -88,8 +102,8 @@ class Controller():
         log(self.model)
         
         # Display initial model view
-        self.update_view()
-        self.update_parameters_view();
+        self._update_view()
+        self._update_parameters_view();
         self.view.root.mainloop()
         
     
@@ -180,10 +194,10 @@ class Controller():
                                   x_lim, y_lim, agent_bite_size)
         
         # Update view parameters
-        self.update_parameters_view()
+        self._update_parameters_view()
         
 
-    def iterate(self):
+    def _iterate(self):
         """
         Iterate the current model and update the view.
 
@@ -202,10 +216,10 @@ class Controller():
             log("Model simulation complete.")
 
         # Update the view
-        self.update_view()
+        self._update_view()
 
 
-    def update_view(self):
+    def _update_view(self):
         """
         Update the view with the current model state
 
@@ -217,7 +231,7 @@ class Controller():
         self.view.display(self.model)
     
     
-    def update_parameters_view(self):
+    def _update_parameters_view(self):
         """
         Update the parameter entry fields in the View from values in the Model.
 
@@ -230,19 +244,19 @@ class Controller():
         log("Updating view entry fields")     
         
         # Update all entry field values
-        self.set_entry_field_value(self.view.num_of_agents_entry,
+        self._set_entry_field_value(self.view.num_of_agents_entry,
                                    self.model.num_of_agents)
-        self.set_entry_field_value(self.view.num_of_iterations_entry,
+        self._set_entry_field_value(self.view.num_of_iterations_entry,
                                    self.model.num_of_iterations)
-        self.set_entry_field_value(self.view.neighbourhood_size_entry,
+        self._set_entry_field_value(self.view.neighbourhood_size_entry,
                                    self.model.neighbourhood_size)
-        self.set_entry_field_value(self.view.agent_store_size_entry,
+        self._set_entry_field_value(self.view.agent_store_size_entry,
                                    self.model.agent_store_size)
-        self.set_entry_field_value(self.view.start_positions_url_entry,
+        self._set_entry_field_value(self.view.start_positions_url_entry,
                                    self.model.start_positions_url)
-        self.set_entry_field_value(self.view.environment_filepath_entry,
+        self._set_entry_field_value(self.view.environment_filepath_entry,
                                    self.model.environment_filepath)
-        self.set_entry_field_value(self.view.agent_bite_size_entry,
+        self._set_entry_field_value(self.view.agent_bite_size_entry,
                                    self.model.agent_bite_size)
         
         # Update the environment limit field
@@ -251,11 +265,11 @@ class Controller():
             # If environment limit is set, format the display text
             environment_limit_text = "{},{}".format(self.model.x_lim,
                                                   self.model.y_lim)
-        self.set_entry_field_value(self.view.environment_limit_entry,
+        self._set_entry_field_value(self.view.environment_limit_entry,
                                    environment_limit_text)
 
 
-    def set_entry_field_value(self, entry_field, value):
+    def _set_entry_field_value(self, entry_field, value):
         """
         Set the entry field text to the given value
 
@@ -295,7 +309,7 @@ class Controller():
         # Start animation
         self.animation = matplotlib.animation.FuncAnimation(
             self.view.fig,
-            (lambda frame_number: self.iterate()),
+            (lambda frame_number: self._iterate()),
             interval=default_animation_interval,
             repeat=False,
             frames=self.model.num_of_iterations)
@@ -371,7 +385,7 @@ class Controller():
             return
              
         # Update the view
-        self.update_view()
+        self._update_view()
         self.view.canvas.draw()
         
         # Track that a reset has occurred
@@ -412,6 +426,7 @@ class View():
     Public Methods:
         
         display -        renders the given model
+        show_error -     displays an error popup
         
     """
 
@@ -828,13 +843,25 @@ Agent Bite Size: {}
         Parameters
         ----------
         num_of_agents : int
-            number of agents.
+            Number of agents.
         num_of_iterations : int
-            number of iterations.
+            Number of iterations.
         neighbourhood_size : int
-            neighbourhood size within which agents can interact with
+            Neighbourhood size within which agents can interact with
             each other.
-
+        agent_store_size : int
+            Maximum capacity for the agent store.
+        start_positions_url : str
+            URL from which the agent starting positions will be fetched.
+        environment_filepath : int
+            Filepath from which the environment data will be fetched.
+        environment_x_lim : int
+            X-axis limit for the environment.
+        environment_y_lim : int
+            Y-axis limit for the environment.
+        agent_bite_size : int
+            Amount of resources consumed in a single agent bite.
+            
         Returns
         -------
         None.
