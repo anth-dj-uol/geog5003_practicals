@@ -22,15 +22,17 @@ import agentframework
 # Define default parameter values
 default_num_of_agents = 50
 default_num_of_iterations = 5000
-default_neighbourhood_size = 2
-default_agent_store_size = 4000
+default_neighbourhood_size = 5
+default_agent_store_size = 5000
 default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 default_environment_limit = 100
-default_agent_bite_size = 50
+default_agent_bite_size = 100
 default_animation_interval = 50
+agent_color_active = "black"
+agent_color_inactive = "grey"
 
 
 def log(message):
@@ -459,37 +461,37 @@ class View():
         parameters_frame = tkinter.Frame(root)
     
         self.num_of_agents_entry = self._insert_labelled_entry(
-            parameters_frame, 'Number of Agents:', "")
+            parameters_frame, "Number of Agents:", "")
 
         self.num_of_iterations_entry = self._insert_labelled_entry(
-            parameters_frame, 'Number of Iterations:', "",
+            parameters_frame, "Number of Iterations:", "",
             1, 0, 1, 1)
 
         self.neighbourhood_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Neighbourhood Size:', "",
+            parameters_frame, "Neighbourhood Size:", "",
             2, 0, 2, 1)
 
         self.agent_store_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Agent Store Size:', "",
+            parameters_frame, "Agent Store Size:", "",
             3, 0, 3, 1)
 
         self.environment_filepath_entry = self._insert_labelled_entry(
-            parameters_frame, 'Environment File Path:',
+            parameters_frame, "Environment File Path:",
             "",
             0, 2, 0, 3)
 
         self.environment_limit_entry = self._insert_labelled_entry(
-            parameters_frame, 'Environment Limit (x, y):',
+            parameters_frame, "Environment Limit (x, y):",
             "",
             1, 2, 1, 3)
 
         self.start_positions_url_entry = self._insert_labelled_entry(
-            parameters_frame, 'Starting Positions URL:',
+            parameters_frame, "Starting Positions URL:",
             "",
             2, 2, 2, 3)
 
         self.agent_bite_size_entry = self._insert_labelled_entry(
-            parameters_frame, 'Agent Bite Size:',
+            parameters_frame, "Agent Bite Size:",
             "",
             3, 2, 3, 3)
         
@@ -537,7 +539,7 @@ class View():
         
         # Render each agent
         for agent in model.agents:
-            color = 'black' if agent.can_eat() else 'grey'
+            color = agent_color_active if agent.can_eat() else agent_color_inactive
             matplotlib.pyplot.scatter(agent.x, agent.y, color=color)
 
 
