@@ -79,6 +79,7 @@ class Controller():
         self.model = model              # Store a reference to the model
         self.view = view_class(self)    # Initialize the View
         self.animation = None           # Used to track the animation
+        self.iteration_count = 0        # Used to track the iteration count
         self.has_been_reset = False     # Track when a reset has occurred
         
         log("Initialized controller with current model:")
@@ -192,10 +193,11 @@ class Controller():
         
         # Iterate model
         is_done = self.model.iterate()
+        self.iteration_count += 1
         
         if is_done:
-            log("Model simulation complete.")
             self.stop_animation()
+            log("Model simulation complete.")
 
         # Update the view
         self.update_view()
@@ -318,6 +320,7 @@ class Controller():
         # Stop animation if one exists
         if self.animation is not None:
             self.animation.event_source.stop()
+            log("Stopped after {} iterations".format(self.iteration_count))
 
 
     def start_animation(self):
@@ -355,6 +358,7 @@ class Controller():
         # Cancel any currently running animation
         self.stop_animation()
         self.animation = None
+        self.iteration_count = 0
    
         # Attempt model initialization
         try:
