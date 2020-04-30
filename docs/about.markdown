@@ -4,7 +4,7 @@ title: About
 permalink: /about/
 ---
 
-This website and the associated GitHub repository contents are a result of the first assessment in the _Programming for Geographical Information Analysis_ (GEOG5003) course from the University of Leeds.
+This website and the associated GitHub repository contents are a result of the first assessment in the _Programming for Geographical Information Analysis_ (GEOG5003) course from the [University of Leeds](https://www.leeds.ac.uk/).
 
 ## Sources and References
 

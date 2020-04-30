@@ -17,7 +17,7 @@ Additional information about ABMs can be found in the following sources:
 
 ## Description
 
-The main program (provided by `model.py`) provides a Graphical User Interface (GUI) to run animated model simulations. The ABM implemented in this program consists of a set of agents that move throughout their environment and consume its resources until they reach their configured capacity. Agents can also share the resources they've collected with neighbouring agents.
+The main program provides a Graphical User Interface (GUI) to run animated model simulations. The ABM implemented in this program consists of a set of agents that move throughout their environment and consume its resources until they reach their configured capacity. Agents can also share the resources they've collected with neighbouring agents.
 
 ![alt text](screenshot.png "Screenshot of active ABM simulation")
 
@@ -25,8 +25,10 @@ The main program (provided by `model.py`) provides a Graphical User Interface (G
 
 There are two main ways that a simulation can stop:
 
-1. **All agents reach their personal store capacity** - the simulation will stop when all agents have consumed engouh resources to fill their personal store, as configured by the _Agent Store Size_ editable parameter
+1. **All agents reach their personal store capacity** - the simulation will stop when all agents have consumed engouh resources to fill their personal store, as configured by the _Agent Store Size_ parameter
 1. **Maximum number of iterations reached** - the simulation will also stop when the configured _Number of Iterations_ has been reached
+
+The first condition to be reached will complete the simulation.
 
 ### User Interface
 
@@ -34,7 +36,7 @@ The GUI provides several features to view and interact with the ABM.
 
 #### Plot
 
-The main plot shows the current state of the model simulation. Agents are rendered as black dots while they are actively moving about the environment. When an agent's store reaches capacity, it will be rendered as a grey dot. The environment cells are rendered from bright yellow to dark purple, representing low values and high values, respectively.
+The main plot shows the current state of the model simulation. Agents are rendered as black dots while they are actively moving about the environment. When an agent's store reaches capacity, it will be rendered as a grey dot. The environment cells are rendered from bright yellow to dark purple, representing low resource values and high resource values, respectively.
 
 #### Menu Actions
 - **Run model** - starts a new model simulation
@@ -51,13 +53,20 @@ Certain parameters for the model can be modified through entry fields in the GUI
 - **Agent Store Size** - the maximum capacity for storing resource values
 - **Environment File Path** - file path to the environment data (a 2-D array of integer values, in CSV format)
 - **Environment Limit** - the maximum size of the environment in a model simulation (e.g. 100,100)
-- **Starting Positions URL** - a URL to an HTML page that specifies x,y coordinates (if left blank, or a higher number of agents are specified, random positions will then be used)
+- **Starting Positions URL** - a URL to an HTML page that specifies x,y coordinates (if left blank, or a higher number of agents are specified, random positions will be used in place of missing data)
 - **Agent Bite Size** - the amount of resources consumed in one "bite"
 
 
 ### Running the Program
 
-The simplest way to run the program is by launching the GUI from the command-line:
+The simplest way to run the program is by launching the GUI from the command-line.
+
+First, ensure the repository is available on the local machine:
+```
+git clone git@github.com:anth-dj/geog5003_practicals.git
+```
+
+Then, run the following command from the root directory of the repository:
 ```
 python python/src/unpackaged/abm/model.py
 ```
@@ -67,11 +76,11 @@ Detailed usage and testing instructions are available in the repository [README]
 
 ### Code Structure
 
-The ABM framework found in [this repository](https://github.com/anth-dj/geog5003_practicals/tree/master), contains the following files:
+The ABM framework found in [this repository](https://github.com/anth-dj/geog5003_practicals/tree/master), contains the following Python files:
 
 - `agentframework.py` - provides classes for the Agent and its associated data, in addition to unit tests for the Agent class
 
-- `model.py` - provides classes to model an ABM, its graphical view and a controller to link the two.
+- `model.py` - provides classes to represent an ABM _Model_, its graphical _View_ and a _Controller_ to link the two components (the [Model-View-Controller pattern](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller))
 
 
 ### Future Improvements

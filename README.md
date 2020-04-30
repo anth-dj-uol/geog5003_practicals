@@ -1,8 +1,8 @@
-# GEOG5003 Assessment 1
+# Agent-Based Model Framework
 
 This repository contains all source code for the University of Leeds GEOG5003 Assessment 1 and practical outputs.
 
-Information about this repository can be found on the associated [Agent Based Modelling](https://anth-dj.github.io/geog5003_practicals/) website.
+Information about this repository and the Agent-Based Model (ABM) framework can be found on the associated [Agent Based Modelling](https://anth-dj.github.io/geog5003_practicals/) website.
 
 # Instructions
 
@@ -48,4 +48,4 @@ python -m unittest python/src/unpackaged/abm/agentframework.py
 
 # License
 
-This repository uses the MIT license (see the [LICENSE](./LICENSE) file).
+This repository is made publicly available under the MIT license (see the [LICENSE](./LICENSE) file).
