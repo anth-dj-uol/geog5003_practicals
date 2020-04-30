@@ -22,13 +22,14 @@ import agentframework
 # Define default parameter values
 default_num_of_agents = 50
 default_num_of_iterations = 200
-default_neighbourhood_size = 20
+default_neighbourhood_size = 2
 default_agent_store_size = 4000
 default_environment_filepath = os.path.dirname(os.path.realpath(__file__)) + \
     os.sep + 'in.txt'
 default_start_positions_url = \
     'http://www.geog.leeds.ac.uk/courses/computing/practicals/python/agent-framework/part9/data.html'
 default_environment_limit = 100
+default_agent_bite_size = 200
 default_animation_interval = 50
 
 
@@ -160,11 +161,20 @@ class Controller():
             except:
                 raise Exception("Environment limit must be of the form X,Y, where X and Y are integers")
 
+        # Validate and get agent bite size
+        agent_bite_size = None
+        agent_bite_size_text = self.view.agent_bite_size_entry.get()
+        if len(agent_bite_size_text) > 0:
+            try:
+                agent_bite_size = int(agent_bite_size_text)
+            except:
+                raise Exception("Agent store size must be an integer")
+
         # Update model parameters
         self.model.set_parameters(num_of_agents, num_of_iterations,
                                   neighbourhood_size, agent_store_size,
                                   start_positions_url, environment_filepath, 
-                                  x_lim, y_lim)
+                                  x_lim, y_lim, agent_bite_size)
         
         # Update view parameters
         self.update_parameters_view()
@@ -228,6 +238,8 @@ class Controller():
                                    self.model.start_positions_url)
         self.set_entry_field_value(self.view.environment_filepath_entry,
                                    self.model.environment_filepath)
+        self.set_entry_field_value(self.view.agent_bite_size_entry,
+                                   self.model.agent_bite_size)
         
         # Update the environment limit field
         environment_limit_text = ""
@@ -471,6 +483,11 @@ class View():
             parameters_frame, 'Starting Positions URL:',
             "",
             2, 2, 2, 3)
+
+        self.agent_bite_size_entry = self._insert_labelled_entry(
+            parameters_frame, 'Agent Bite Size:',
+            "",
+            3, 2, 3, 3)
         
         # Add a button to update parameters
         load_button = tkinter.Button(parameters_frame, text="Update Model",
@@ -707,7 +724,8 @@ class Model():
                             default_start_positions_url,
                             default_environment_filepath,
                             default_environment_limit,
-                            default_environment_limit)
+                            default_environment_limit,
+                            default_agent_bite_size)
 
         # Initialize model properties
         self.initialize()
@@ -725,6 +743,7 @@ Agent Store size: {}
 Environment filepath: {}
 Environment limit: {},{}
 Start Positions URL: {}
+Agent Bite Size: {}
 ===============================
                 '''.format(
                     self.num_of_agents,
@@ -734,6 +753,7 @@ Start Positions URL: {}
                     self.environment_filepath,
                     self.x_lim, self.y_lim,
                     self.start_positions_url,
+                    self.agent_bite_size
                 )
 
 
@@ -789,7 +809,8 @@ Start Positions URL: {}
     def set_parameters(self, num_of_agents=None, num_of_iterations=None,
                        neighbourhood_size=None, agent_store_size=None,
                        start_positions_url=None, environment_filepath=None,
-                       environment_x_lim=None, environment_y_lim=None):
+                       environment_x_lim=None, environment_y_lim=None,
+                       agent_bite_size=None):
         """
         Set new model parameters
 
@@ -840,7 +861,11 @@ Start Positions URL: {}
         self.x_lim = environment_x_lim
         self.y_lim = environment_y_lim
 
-    
+        # Update agent store size, if provided
+        if agent_bite_size is not None:
+            self.agent_bite_size = agent_bite_size
+        
+
     def _fetch_start_positions(self, url):
         """
         Return agent start positions from the provided URL.
@@ -899,7 +924,7 @@ Start Positions URL: {}
             # Add new Agent to the model
             self.agents.append(
                 agentframework.Agent(self.environment, self.agents, y, x,
-                                     self.agent_store_size))
+                                     self.agent_store_size, self.agent_bite_size))
 
 
     def _create_environment(self, filepath):
