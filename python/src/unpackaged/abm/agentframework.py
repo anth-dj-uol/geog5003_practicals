@@ -284,6 +284,8 @@ class AgentTestCase(unittest.TestCase):
         None.
 
         """
+        
+        # Setup test case
         environment = self.create_environment(8, 1, 1)
         agents = []
         y = 1
@@ -331,9 +333,13 @@ class AgentTestCase(unittest.TestCase):
         None.
 
         """
+        
+        # Setup test case
         environment = self.create_environment(11, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
+        
+        # Verify effect of eat function
         self.assertEqual(agent.store, 10)
         self.assertEqual(environment.plane[0][0], 1)
 
@@ -349,9 +355,12 @@ class AgentTestCase(unittest.TestCase):
 
         """
 
+        # Setup test case
         environment = self.create_environment(10, 1, 1)
         agent = Agent(environment, [], 0, 0)
         agent.eat()
+        
+        # Verify effect of eat function
         self.assertEqual(agent.store, 0)
         self.assertEqual(environment.plane[0][0], 10)
 
@@ -366,8 +375,11 @@ class AgentTestCase(unittest.TestCase):
 
         """
 
+        # Setup test case
         agent1 = Agent([[]], [], 0, 0)
         agent2 = Agent([[]], [], 4, 3)
+        
+        # Verify distance calculation
         self.assertEqual(agent1._distance_between(agent2), 5)
 
     def test_share_with_neighbours(self):
@@ -421,13 +433,17 @@ class AgentTestCase(unittest.TestCase):
 
         """
         
+        # Create new environment plane using the given parameters
         environment = []
         for i in range(rows):
             environment.append([])
             for j in range(columns):
                 environment[i].append(initial_value)
+        
+        # Create new environment from the initialized plane
         return Environment(environment)
                         
 
+# Run unit tests when invoked as a script
 if __name__ == '__main__':
     unittest.main()

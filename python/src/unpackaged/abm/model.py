@@ -207,6 +207,7 @@ class Controller():
 
         log("Updating view entry fields")     
         
+        # Update all entry field values
         self.set_entry_field_value(self.view.num_of_agents_entry,
                                    self.model.num_of_agents)
         self.set_entry_field_value(self.view.num_of_iterations_entry,
@@ -220,8 +221,10 @@ class Controller():
         self.set_entry_field_value(self.view.environment_filepath_entry,
                                    self.model.environment_filepath)
         
+        # Update the environment limit field
         environment_limit_text = ""
         if self.model.x_lim is not None and self.model.x_lim is not None:
+            # If environment limit is set, format the display text
             environment_limit_text = "{},{}".format(self.model.x_lim,
                                                   self.model.y_lim)
         self.set_entry_field_value(self.view.environment_limit_entry,
@@ -229,8 +232,25 @@ class Controller():
 
 
     def set_entry_field_value(self, entry_field, value):
+        """
+        Set the entry field text to the given value
+
+        Parameters
+        ----------
+        entry_field : tkinter.Entry
+            The entry field to modify.
+        value : str
+            The value to set in the entry field.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         entry_field.delete(0, tkinter.END)
         entry_field.insert(0, value)
+
 
     def run_model(self):
         """
@@ -384,6 +404,8 @@ class View():
 
         """
 
+        log("Instantiating a View.")
+        
         # Set the controller back-reference
         self.controller = controller
 
@@ -459,7 +481,6 @@ class View():
                                                                      master=root)
         canvas._tkcanvas.pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
         self.canvas = canvas
-        
 
 
     def display(self, model):
@@ -489,6 +510,7 @@ class View():
         for agent in model.agents:
             matplotlib.pyplot.scatter(agent.x, agent.y, color='black')
 
+
     def show_error(self, message):
         """
         Display error message
@@ -508,6 +530,17 @@ class View():
 
 
     def _on_close(self):
+        """
+        Close the application.
+        
+        This will close the GUI application and clean up associated resources.
+
+        Returns
+        -------
+        None.
+
+        """
+        
         log("Shutting down program.")
         
         # Close all open figures
@@ -516,6 +549,7 @@ class View():
         # Quit the GUI program and free up memory
         self.root.quit()
         self.root.destroy()
+
 
     def _on_run_model(self):
         """
@@ -526,6 +560,7 @@ class View():
         None.
 
         """
+        
         self.controller.run_model()
 
 
@@ -538,6 +573,7 @@ class View():
         None.
 
         """
+        
         self.controller.stop_animation()
 
 
@@ -550,6 +586,7 @@ class View():
         None.
 
         """
+        
         self.controller.start_animation()
 
 
@@ -562,6 +599,7 @@ class View():
         None.
 
         """
+        
         self.controller.load_parameters()
 
 
@@ -646,6 +684,9 @@ class Model():
         None.
 
         """
+        
+        log("Instantiating a Model.")
+        
         # Initialize model properties
         self.agents = []
         self.environment = []
@@ -666,16 +707,25 @@ class Model():
 
     def __str__(self):
          return '''
+===============================
 Model
 -----
 Number of agents: {}
 Number of iterations: {}
 Neighbourhood size: {}
-
+Agent Store size: {}
+Start Positions URL: {}
+Environment filepath: {}
+Environment limit: {},{}
+===============================
                 '''.format(
                     self.num_of_agents,
                     self.num_of_iterations,
-                    self.neighbourhood_size
+                    self.neighbourhood_size,
+                    self.agent_store_size,
+                    self.start_positions_url,
+                    self.environment_filepath,
+                    self.x_lim, self.y_lim
                 )
 
 
@@ -741,18 +791,23 @@ Neighbourhood size: {}
 
         """
         
+        # Update number of agents, if provided
         if num_of_agents is not None:
             self.num_of_agents = num_of_agents
 
+        # Update number of iterations, if provided
         if num_of_iterations is not None:
             self.num_of_iterations = num_of_iterations
 
+        # Update neighbourhood size, if provided
         if neighbourhood_size is not None:
             self.neighbourhood_size = neighbourhood_size
-            
+        
+        # Update agent store size, if provided
         if agent_store_size is not None:
             self.agent_store_size = agent_store_size
 
+        # Update start positions, if provided
         self.start_positions_url = start_positions_url
         if self.start_positions_url is not None and len(self.start_positions_url) > 0:
             log("Fetching start positions from URL: {}".format(self.start_positions_url))
@@ -760,10 +815,11 @@ Neighbourhood size: {}
         else:
             self.start_positions = ([], [])
 
+        # Update environment filepath
         self.environment_filepath = environment_filepath
 
+        # Update environment limits
         self.x_lim = environment_x_lim
-
         self.y_lim = environment_y_lim
 
     
@@ -790,6 +846,7 @@ Neighbourhood size: {}
         content = r.text
 
         # Parse the given HTML to obtain the x-axis and y-axis positions
+        log("Parsing start positions from HTML content.")
         soup = bs4.BeautifulSoup(content, 'html.parser')
         td_xs = soup.find_all(attrs={"class" : "x"})
         td_ys = soup.find_all(attrs={"class" : "y"})
@@ -874,7 +931,11 @@ Neighbourhood size: {}
 
 def main():
     log("Starting the Agent-Based Model program...")
+    
+    # Start the GUI program
     Controller(Model(), View)
 
+
+# Run the main function when invoked as a script
 if __name__ == '__main__':
     main()
